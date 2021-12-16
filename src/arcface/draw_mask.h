@@ -17,3 +17,5 @@ namespace ArcFace
 }
 
 #endif //DRIVER_MONITOR_DRAW_MASK_H
+
+//这个文件用来画人脸识别的框，框出需要检测的人脸的部分

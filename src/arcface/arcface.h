@@ -18,8 +18,8 @@ using namespace nvinfer1;
 
 namespace ArcFace
 {
-    const static unsigned int FACE_FEATURE_DIMENSION = 512;
-    const static unsigned int GALLARY_NUM = 2000;
+    const static unsigned int FACE_FEATURE_DIMENSION = 512; //512维人脸特征
+    const static unsigned int GALLARY_NUM = 2000;   //2000人
 
     static Logger gLogger;
 
