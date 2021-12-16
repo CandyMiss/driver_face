@@ -1,0 +1,5 @@
+<launch>
+    <node name="pub_cam_node" pkg="driver_face" type="Decoder" output="screen"/>
+  <node name="image_analyze_node" pkg="driver_face" type="Analyzer" output="screen"/>
+  <node name="image_render_node" pkg="driver_face" type="Renderer" output="screen"/>
+</launch>

@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/nvidia/wdq/ros_vision/devel/include/**",
+        "/home/nvidia/.Detect/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/nvidia/wdq/ros_vision/src/driver_face/include/**",
+        "/home/nvidia/.Detect/src/lidar_view/include/**",
+        "/home/nvidia/.Detect/src/StarROS/include/**",
+        "/home/nvidia/.Detect/src/yolo/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}
