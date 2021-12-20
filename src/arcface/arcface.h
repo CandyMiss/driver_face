@@ -38,7 +38,7 @@ namespace ArcFace
 
     void APIToModel(unsigned int maxBatchSize, IHostMemory **modelStream);
 
-    void InitArcFaceEngine();
+    void InitArcFaceEngine();   //这里有路径？
 
     void ReleasePFLDEngine();
 

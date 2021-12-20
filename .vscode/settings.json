@@ -3,5 +3,10 @@
         "/home/nvidia/wdq/ros_vision/devel/lib/python2.7/dist-packages",
         "/home/nvidia/.Detect/devel/lib/python2.7/dist-packages",
         "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/nvidia/wdq/ros_vision/devel/lib/python2.7/dist-packages",
+        "/home/nvidia/.Detect/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
     ]
 }

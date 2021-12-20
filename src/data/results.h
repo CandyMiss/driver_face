@@ -31,7 +31,7 @@ public:
 
     // 捕捉到的数据
     float RectHead[Yolo::LOCATIONS]{0.0};    // Yolo::LOCATIONS 就是4。rect存储比值，center_x center_y w h
-    float RectFace[Yolo::LOCATIONS]{0.0};
+    float RectFace[Yolo::LOCATIONS]{0.0};   //人脸识别要用
     float RectFacePoint[Yolo::LOCATIONS]{0.0};    // 人脸关键点检测所用。它应当是rectFace之外更广阔一点的范围，需要包括双耳及额头
     float RectCigarette[Yolo::LOCATIONS]{0.0};
     float RectPhone[Yolo::LOCATIONS]{0.0};
@@ -61,6 +61,30 @@ private:
 
     void getFacePointMapPos(float *pointsFace);
 
+};
+
+class DriverIDResult
+{
+public:
+    static const unsigned int FACE_RECOG_TIMES = 10;    //连续检测人脸的次数
+    int ID{-1};
+    float CurDriveFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};
+    std::vector<std::string> DriverIds;
+
+private:
+    std::map<int, int> faceIDRec;
+    std::map<int, float *> faceFeatureRec;
+
+public:
+    DriverIDResult();
+
+    void Reset();
+
+    void AddOneRecogResult(int faceID, float *faceFeature);
+
+    void GetIDReuslt();
+
+    std::string QueryDriverName();
 };
 
 #endif //DRIVER_MONITOR_RESULTS_H

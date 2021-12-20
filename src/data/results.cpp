@@ -59,6 +59,8 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)
                 FaceCaptured = false;
         }
     }
+
+#pragma endregion
 }
 
 std::string DriverResult::toString()
@@ -72,4 +74,78 @@ std::string DriverResult::toString()
     }
 }
 
+#pragma endregion
 
+#pragma region DriverIDResult
+
+DriverIDResult::DriverIDResult()
+{
+    const std::string face_map = "facemap.txt";
+    const std::string suffix = ".jpg";
+    unsigned int suffix_len = suffix.length();
+
+    ifstream infile;
+    infile.open(face_map.data());   //将文件流对象与文件连接起来
+    assert(infile.is_open());   //若失败,则输出错误消息,并终止程序运行
+
+    string line;
+    while (getline(infile, line))
+    {
+        if (line.length() > suffix_len)
+        {
+            DriverIds.push_back(line.substr(0, line.length() - suffix_len));
+        }
+    }
+    infile.close();
+}
+
+void DriverIDResult::Reset()
+{
+    ID = -1;
+    memset(CurDriveFaceFeature, 0, ArcFace::FACE_FEATURE_DIMENSION * sizeof(float));
+    faceIDRec.clear();
+    faceFeatureRec.clear();
+}
+
+void DriverIDResult::AddOneRecogResult(int faceID, float *faceFeature)  //一次识别结果，找id是否在map和人脸是否在map
+{
+    if (faceIDRec.end() != faceIDRec.find(faceID))                      //找到
+    {
+        faceIDRec[faceID]++;                                            //计数+1
+        memcpy(faceFeatureRec[faceID], faceFeature, ArcFace::FACE_FEATURE_DIMENSION * sizeof(float));   //取出人脸特征
+    }
+    else
+    {
+        faceIDRec.insert(pair<int, int>(faceID, 1));
+        faceFeatureRec.insert(pair<int, float *>(faceID, faceFeature));
+    }
+}
+
+void DriverIDResult::GetIDReuslt()                                      //找多次识别之后最匹配的人
+{
+    int numIDMax = -1;
+    for (map<int, int>::iterator iter = faceIDRec.begin(); iter != faceIDRec.end(); ++iter)
+    {
+        if (numIDMax < iter->second)
+        {
+            ID = iter->first;                                           //记录识别最多的id
+            numIDMax = iter->second;
+        }
+    }
+
+    memcpy(CurDriveFaceFeature, faceFeatureRec[ID], ArcFace::FACE_FEATURE_DIMENSION * sizeof(float));
+
+    cout << "确定驾驶员身份：" << ID << endl;
+}
+
+string DriverIDResult::QueryDriverName()
+{
+    string id = DriverIds[ID];
+    DriverDataOp op;
+    op.Open();
+    string name = op.QueryDriverName(id);
+    op.Close();
+    return name;
+}
+
+#pragma endregion

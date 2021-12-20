@@ -15,6 +15,7 @@ ros::Time CurAnalyzeStamp;
 ros::Publisher StampInfoPub;
 
 DriverResult CurFaceResult;
+vector<Mat> yoloInputs;
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -58,6 +59,59 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         {
             cout << "位置：" << rect.x << ", " << rect.y << endl;
         }
+
+
+            yoloInputs.clear();
+
+            if (signal_exe == SIGNAL::FACE_ID_RECOG)
+            {
+                cout << "我正在分析人脸识别！！！！！！！！！！！！！！！" << endl;
+                doDriverID(yoloInputs);
+            }
+
+            if (signal_exe == SIGNAL::RUN)
+            {
+                TimeStamp stampDriver;
+                Mat frameDriver;
+                bool isGoodInput = yoloPushOneInput(yoloInputs, FrameQueueDriver, frameDriver,
+                                                    stampDriver);   // 确定时间戳并给yolo喂Driver的数据
+                if (!isGoodInput)
+                {
+                    continue;
+                }
+
+                CurDriverRendTimeStamp = CurDriverAnalyzeTimeStamp;
+                CurDriverAnalyzeTimeStamp = stampDriver;
+
+                /*---------------------- 执行inference ----------------------*/
+
+                vector<Yolo::Detection> result = YoloV5::AnalyzeOneShot(frameDriver);
+                resultDebug = result;
+
+                DriverResult driverResult;
+                driverResult.DealYoloResult(result);
+
+                TheSameDriverWhileRunning(frameDriver, stampDriver, driverResult);
+
+                // if (driverResult.FaceCaptured   // 有正面的像样的人脸了，实在太好了，可以识别身份和面部动作了
+                //     || driverResult.FaceLeftCaptured || driverResult.FaceRightCaptured || driverResult.FaceUpCaptured || driverResult.FaceDownCaptured)  // 测试用
+                // {
+                //     doFacePointDetect(frameDriver, stampDriver, driverResult);
+                // }
+                // else
+                // {
+                //     driverResult.ResetPointState();
+                // }
+
+                AllResult->pushDriverResult(stampDriver, driverResult);
+
+                AllResult->AnalyzeState();
+
+                /*---------------------- 执行inference - end ----------------------*/
+            }
+
+
+
     }
     catch (cv_bridge::Exception& e)
     {
