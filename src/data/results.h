@@ -46,6 +46,7 @@ public:
     float FaceAngelVirt{-1.0};
     float EyeOpen{-1.0};
     float MouthOpen{-1.0};
+    int FaceNum{0};
 
 public:
     void DealYoloResult(std::vector<Yolo::Detection> &driverResult);

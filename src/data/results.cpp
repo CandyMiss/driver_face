@@ -25,6 +25,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)
     float areaMouthHead{0.0};
     float areaCigarette{0.0};
     float areaPhone{0.0};
+    driverResult.FaceNum = 0;
 
     for (vector<Detection>::iterator iter = driverResult.begin(); iter != driverResult.end(); ++iter)
     {
@@ -43,6 +44,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)
 #pragma region 看脸
             case ClassID::FACE:
                 // 标明捕捉到脸，后续可执行脸部操作
+                driverResult.FaceNum ++;
                 if (iter->bbox[2] * iter->bbox[3] < areaFace)
                 {
                     continue;

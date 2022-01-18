@@ -3,6 +3,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 #include <driver_face/ResultMsg.h>
+#include <driver_face/FaceRecMsg.h>
 
 #include "yolov5/yolov5.h"
 #include "data/results.h"
@@ -28,6 +29,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
         cv::Mat frameFace = cv_bridge::toCvShare(msg, "bgr8")->image;
         driver_face::ResultMsg result_msg;
+        driver_face::FaceRecMsg face_msg;
 		result_msg.LatestResultStamp = CurAnalyzeStamp;
         CurAnalyzeStamp = stamp;
 		result_msg.CurAnalyzeStamp  = stamp;
@@ -36,10 +38,12 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         if(CurFaceResult.FaceCaptured)
         {
             result_msg.FaceGesture = 1;
+            face_msg.Isface = true;
         }
         else
         {
             result_msg.FaceGesture = 0;
+            face_msg.Isface = false;
         }
         // result_msg.FaceGesture = CurFaceResult.FaceCaptured;
         cv::Rect rect = YoloV5::get_rect(frameFace, CurFaceResult.RectFace); // 坐标转换
@@ -49,11 +53,17 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         result_msg.RectFace_h = rect.height;
 
         StampInfoPub.publish(result_msg);
+        FaceInfoPub.publish(face_msg);
 
         // 得到分析结果，发布特定数据
         vector<Yolo::Detection> result = YoloV5::AnalyzeOneShot(frameFace);
         CurFaceResult.DealYoloResult(result); // rect先不做转换。在canvas上绘图时再具体生成坐标
-
+        if(CurFaceResult.FaceNum > 1){
+            face_msg.IsMultiFace = true;
+        }
+        else{
+            face_msg.IsMultiFace = false;
+        }
         cout << "Yolo V5 检测结果：" << CurFaceResult.toString() << endl;
         if(CurFaceResult.FaceCaptured != FALSE)
         {
@@ -78,6 +88,7 @@ int main(int argc, char **argv)
 
     CurAnalyzeStamp = ros::Time::now();
     StampInfoPub = node_analyze.advertise<driver_face::ResultMsg>("/camera_csi0/cur_result", 1);
+    FaceInfoPub = node_analyze.advertise<driver_face::FaceRecMSg>("/camera_csi0/face_result", 1);
 
     image_transport::ImageTransport it(node_analyze);
     image_transport::Subscriber sub = it.subscribe("/camera_csi0/frames", 1, imageCallback);

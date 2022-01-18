@@ -113,11 +113,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-unknown-pragmas -O
 
 # 不明白工程里的问题，这里凡是使用了 CUDA代码，都要编译为动态链接库才能使用
 cuda_add_library(yololayer SHARED src/yolov5/yololayer.cu)
-##cuda_add_library(face_similarity SHARED ${PROJECT_SOURCE_DIR}/arcface/face_similarity.cu)
+cuda_add_library(face_similarity SHARED ${PROJECT_SOURCE_DIR}/arcface/face_similarity.cu)
 
 add_message_files(
   FILES
  ResultMsg.msg
+ FaceRecMsg.msg
  )
 generate_messages(
   DEPENDENCIES
