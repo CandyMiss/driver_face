@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  message_runtime
 )
 
 ## System dependencies are found with CMake's conventions
@@ -80,6 +81,7 @@ find_package(catkin REQUIRED COMPONENTS
 option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
 
 find_package(CUDA REQUIRED)
 
@@ -113,16 +115,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-unknown-pragmas -O
 
 # 不明白工程里的问题，这里凡是使用了 CUDA代码，都要编译为动态链接库才能使用
 cuda_add_library(yololayer SHARED src/yolov5/yololayer.cu)
-cuda_add_library(face_similarity SHARED ${PROJECT_SOURCE_DIR}/arcface/face_similarity.cu)
+##cuda_add_library(face_similarity SHARED ${PROJECT_SOURCE_DIR}/arcface/face_similarity.cu)
 
 add_message_files(
   FILES
- ResultMsg.msg
- FaceRecMsg.msg
+  ResultMsg.msg
+  FaceRecMsg.msg
  )
 generate_messages(
   DEPENDENCIES
   std_msgs
+  sensor_msgs
 )
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -156,7 +159,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES driver_face
-  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
+  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs message_generation message_runtime
 #  DEPENDS system_lib
 )
 
@@ -209,6 +212,7 @@ add_executable(Analyzer src/analyze.cpp
         src/utils/utils.h
         src/utils/dataset.h src/utils/dataset.cpp
         src/data/results.h src/data/results.cpp
+#        src/database/SqliteOp.h src/database/SqliteOp.cpp
         src/yolov5/common.h src/yolov5/common.cpp
         src/yolov5/yololayer.h src/yolov5/yololayer.cu
         src/yolov5/yolov5.h src/yolov5/yolov5.cpp)
@@ -220,12 +224,16 @@ add_executable(Renderer src/render.cpp
 target_link_libraries(Renderer ${catkin_LIBRARIES})
 add_dependencies(Renderer ${PROJECT_NAME}_generate_messages_cpp)
 
+add_executable(Identifier src/identify.cpp)
+target_link_libraries(Identifier ${catkin_LIBRARIES})
+add_dependencies(Identifier ${PROJECT_NAME}_generate_messages_cpp)
+
 find_package(OpenCV)
 include_directories(OpenCV_INCLUDE_DIRS)
 target_link_libraries(Decoder ${OpenCV_LIBS})
 target_link_libraries(Analyzer ${OpenCV_LIBS})
 target_link_libraries(Renderer ${OpenCV_LIBS})
-
+target_link_libraries(Identifier ${OpenCV_LIBS})
 
 target_link_libraries(Analyzer nvinfer)
 target_link_libraries(Analyzer cudart)

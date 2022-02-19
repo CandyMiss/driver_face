@@ -11,7 +11,8 @@ void DriverDataOp::Open()
     }
     else
     {
-        fprintf(stderr, "无法打开数据库: %s\n", sqlite3_errmsg(db));
+        printf( "无法打开数据库\n");
+        ///fprintf(stderr, "无法打开数据库: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return;
     }

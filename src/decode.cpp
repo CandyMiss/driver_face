@@ -30,33 +30,33 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "pub_cam_node");  //argc:remapping 参数的个数，argv参数列表，运行时节点名
     ros::NodeHandle n;
 
-////tx2
-    // int capture_width = 1280 ;
-    // int capture_height = 720 ;
-    // int display_width = 1280 ;
-    // int display_height = 720 ;
-    // int framerate = 10 ;
-    // int flip_method =2 ;
-
-    // std::string pipeline = gstreamer_pipeline(capture_width,
-    //                        capture_height,
-    //                        display_width,
-    //                        display_height,
-    //                        framerate,
-    //                        flip_method);
-    
-    // //hk
-    std::string uri = "rtsp://admin:Admin12345@192.168.1.66:554/Streaming/Channels/1";
+//tx2
+    int capture_width = 1280 ;
+    int capture_height = 720 ;
     int display_width = 1280 ;
     int display_height = 720 ;
-    int latency = 0 ;
+    int framerate = 10 ;
+    int flip_method =2 ;
 
-    std::string pipeline = gstreamer_pipeline(uri,
-                latency, 
-                display_width,
-                display_height);
+    std::string pipeline = gstreamer_pipeline(capture_width,
+                           capture_height,
+                           display_width,
+                           display_height,
+                           framerate,
+                           flip_method);
+    
+    // // //hk
+    // std::string uri = "rtsp://admin:Admin12345@192.168.1.65:554/Streaming/Channels/1";
+    // int display_width = 1280 ;
+    // int display_height = 720 ;
+    // int latency = 0 ;
 
-    cout << "Using pipeline: \n\t" << pipeline << endl;
+    // std::string pipeline = gstreamer_pipeline(uri,
+    //             latency, 
+    //             display_width,
+    //             display_height);
+
+    // cout << "Using pipeline: \n\t" << pipeline << endl;
 
     //1 捕获视频
     cv::VideoCapture capture;

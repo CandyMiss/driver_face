@@ -16,7 +16,7 @@ const double FACE_POINT_RECT_EXPANSIVITY = 1.3;
 
 #pragma region DriverResult
 
-void DriverResult::DealYoloResult(vector<Detection> &driverResult)
+void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计是别到的人脸数量
 {
     // 仅保留面积最大的那个对象——对于单个驾驶员而言，以下所有的对象都是唯一的
     float areaHead{0.0};
@@ -25,7 +25,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)
     float areaMouthHead{0.0};
     float areaCigarette{0.0};
     float areaPhone{0.0};
-    driverResult.FaceNum = 0;
+    FaceNum = 0;
 
     for (vector<Detection>::iterator iter = driverResult.begin(); iter != driverResult.end(); ++iter)
     {
@@ -44,7 +44,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)
 #pragma region 看脸
             case ClassID::FACE:
                 // 标明捕捉到脸，后续可执行脸部操作
-                driverResult.FaceNum ++;
+                FaceNum ++;
                 if (iter->bbox[2] * iter->bbox[3] < areaFace)
                 {
                     continue;
@@ -140,14 +140,14 @@ void DriverIDResult::GetIDReuslt()                                      //找多
     cout << "确定驾驶员身份：" << ID << endl;
 }
 
-string DriverIDResult::QueryDriverName()
-{
-    string id = DriverIds[ID];
-    DriverDataOp op;
-    op.Open();
-    string name = op.QueryDriverName(id);
-    op.Close();
-    return name;
-}
+// string DriverIDResult::QueryDriverName()
+// {
+//     string id = DriverIds[ID];
+//     DriverDataOp op;
+//     op.Open();
+//     string name = op.QueryDriverName(id);
+//     op.Close();
+//     return name;
+// }
 
 #pragma endregion

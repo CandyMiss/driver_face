@@ -21,11 +21,11 @@ const double FONT_SCALE = 2.5;
 
 ros::Time StartStamp;
 bool GotResult = false;
-driver_face::ResultMsg FaceResult;
+driver_face::ResultMsg reslut_msg;
 
 
 #pragma region 渲染中文字体
-CvxText text("/home/nvidia/wdq/ros_vision/devel/res/MSYaHei.ttf"); //指定字体
+CvxText text("./MSYaHei.ttf"); //指定字体 ///home/nvidia/wdq/ros_vision/devel/res/MSYaHei.ttf
 cv::Scalar size1{40, 0.5, 0.1, 0}; // { 字体大小/空白比例/间隔比例/旋转角度 }
 static int ToWchar(char *&src, wchar_t *&dest, const char *locale = "zh_CN.utf8")
 {
@@ -84,10 +84,11 @@ void drawIniting(cv::Mat& canvas)
     drawChineseChars(canvas, str, posX, posY, cv::Scalar(0, 0, 255)); //左上角绘制文字信息
 }
 
+//框出人脸，显示分析结果，传整图
 void drawRunning(cv::Mat& canvas)
 {
     char *str = (char *)"";
-    switch(FaceResult.FaceGesture)
+    switch(reslut_msg.FaceGesture)
     {
         case driver_face::ResultMsg::NONE:
             str = (char *)"无";
@@ -109,10 +110,10 @@ void drawRunning(cv::Mat& canvas)
     int posY = canvas.rows / 2 + text_size.height / 2;
     drawChineseChars(canvas, str, posX, posY, cv::Scalar(0, 0, 255)); //左上角绘制文字信息
 
-    if(FaceResult.FaceGesture != driver_face::ResultMsg::NONE)
+    if(reslut_msg.FaceGesture != driver_face::ResultMsg::NONE)
     {
-        cv::Rect r(FaceResult.RectFace_x, FaceResult.RectFace_y, FaceResult.RectFace_w, FaceResult.RectFace_h);
-        cv::rectangle(canvas, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
+        cv::Rect r(reslut_msg.RectFace_x, reslut_msg.RectFace_y, reslut_msg.RectFace_w, reslut_msg.RectFace_h);
+        cv::rectangle(canvas, r, cv::Scalar(0x27, 0xC1, 0x36), 2);  //在图像上绘制矩形
     }
 }
 #pragma endregion
@@ -121,6 +122,7 @@ ros::Time LatestResultStamp;
 ros::Time CurAnalyzeStamp;
 queue<pair<ros::Time, Mat>> FrameQueueFace;
 
+//目标检测结果的回调函数，取出result_msg的结果存到全局量
 void ResultMsgInfoCallback(const driver_face::ResultMsg::ConstPtr& msg)
 {
     cout << "单帧分析耗时： " << (int)((msg->CurAnalyzeStamp - msg->LatestResultStamp).toSec() * 1000) << endl;
@@ -129,19 +131,21 @@ void ResultMsgInfoCallback(const driver_face::ResultMsg::ConstPtr& msg)
     LatestResultStamp = msg->LatestResultStamp;
     CurAnalyzeStamp = msg->CurAnalyzeStamp;
     
-    FaceResult.FaceGesture = msg->FaceGesture;
-    FaceResult.RectFace_x = msg->RectFace_x;
-    FaceResult.RectFace_y = msg->RectFace_y;
-    FaceResult.RectFace_w = msg->RectFace_w;
-    FaceResult.RectFace_h = msg->RectFace_h;
+    reslut_msg.FaceGesture = msg->FaceGesture;
+    reslut_msg.RectFace_x = msg->RectFace_x;
+    reslut_msg.RectFace_y = msg->RectFace_y;
+    reslut_msg.RectFace_w = msg->RectFace_w;
+    reslut_msg.RectFace_h = msg->RectFace_h;
 }
 
+
+//摄像头的消息回调函数
 void DrawImageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
     try
     {
         ros::Time stamp = msg->header.stamp;
-        Mat frame = cv_bridge::toCvShare(msg, "bgr8")->image;
+        Mat frame = cv_bridge::toCvShare(msg, "bgr8")->image;   //整图
 
         if(GotResult)
         {
@@ -176,7 +180,7 @@ void DrawImageCallback(const sensor_msgs::ImageConstPtr& msg)
             {
                 Mat canvas = FrameQueueFace.front().second.clone();
                 FrameQueueFace.pop();
-                drawRunning(canvas);
+                drawRunning(canvas);    //在取出的一帧图像上绘制矩形
                 cv::imshow("view", canvas);
             }
         }

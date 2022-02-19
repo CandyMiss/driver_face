@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--本文件仅作为示例，当业务功能确定之后还需要具体设计内容。整体框架就此定型-->
+<!-- 参数内容有两种：持续时间；定性门限 -->
+<config>
+    <!--驾驶员人脸识别-->
+    <module name="FaceRecognition">
+        <param name="RECOGNITION_TIME_PERIOD" value="10"/>
+    </module>
+    <!-- 面部遮挡，仅有时间门限 -->
+    <module name="FaceOcclusion">
+        <param name="EYES_OCCLUSION_TIME_THRD" value="5"/>
+        <param name="MOUTH_OCCLUSION_TIME_THRD" value="5"/>
+    </module>
+    <!-- 异常行为监测 -->
+    <module name="AbnormalBehavior">
+        <param name="FACE_ANGLE_HORIZ_TIME_THRD" value="3"/>
+        <param name="FACE_ANGLE_VIRT_TIME_THRD" value="3"/>
+        <param name="ANGLE_HORIZ_THRD" value="0.2"/>
+        <param name="ANGLE_VERT_THRD" value="0.6"/>
+    </module>
+    <!-- 疲劳状态检测 -->
+    <module name="FatigueState">
+        <param name="EYE_CLOSE_TIME_THRD" value="3"/>
+        <param name="MOUTH_OPEN_TIME_THRD" value="2"/>
+        <param name="EYE_DGREE_THRD" value="0.3"/>
+        <param name="MOUTH_DGREE_THRD" value="0.55"/>
+    </module>
+</config>

@@ -7,6 +7,7 @@
 
 #include "yolov5/yolov5.h"
 #include "data/results.h"
+#include "database/SqliteOp.h"
 
 using namespace std;
 using namespace std::chrono::_V2;
@@ -15,6 +16,7 @@ const int CAMERA_ID_Face = 0;
 
 ros::Time CurAnalyzeStamp;
 ros::Publisher StampInfoPub;
+ros::Publisher FaceInfoPub;
 
 DriverResult CurFaceResult;
 
@@ -27,37 +29,45 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         ros::Time stamp = msg->header.stamp;
         cout << "接收的图像是 " << (int)((nowStamp - stamp).toSec() * 1000) << " 毫秒之前拍摄的" << endl;
 
-        cv::Mat frameFace = cv_bridge::toCvShare(msg, "bgr8")->image;
+        cv::Mat frame = cv_bridge::toCvShare(msg, "bgr8")->image;       //摄像头接收到的 图像
         driver_face::ResultMsg result_msg;
         driver_face::FaceRecMsg face_msg;
 		result_msg.LatestResultStamp = CurAnalyzeStamp;
         CurAnalyzeStamp = stamp;
 		result_msg.CurAnalyzeStamp  = stamp;
 
-        // 准备发布yolo检测结果
-        if(CurFaceResult.FaceCaptured)
-        {
-            result_msg.FaceGesture = 1;
-            face_msg.Isface = true;
-        }
-        else
-        {
-            result_msg.FaceGesture = 0;
-            face_msg.Isface = false;
-        }
         // result_msg.FaceGesture = CurFaceResult.FaceCaptured;
-        cv::Rect rect = YoloV5::get_rect(frameFace, CurFaceResult.RectFace); // 坐标转换
+        cv::Rect rect = YoloV5::get_rect(frame, CurFaceResult.RectFace); // 坐标转换，得到框在图中的位置
         result_msg.RectFace_x = rect.x;
         result_msg.RectFace_y = rect.y;
         result_msg.RectFace_w = rect.width;
         result_msg.RectFace_h = rect.height;
+        cv::Mat face_frame;
 
+        // 准备发布yolo检测结果，是否抓到人脸
+        if(CurFaceResult.FaceCaptured)
+        {
+            result_msg.FaceGesture = 1;
+            face_msg.IsFace = true;
+            face_frame = frame(rect); //截出人脸的图像
+        }
+        else
+        {
+            result_msg.FaceGesture = 0;
+            face_msg.IsFace = false;
+            face_frame = frame; //截出人脸的图像
+        }
+
+        face_msg.FaceImage = *(cv_bridge::CvImage(std_msgs::Header(), "bgr8", face_frame ).toImageMsg());  //用cv_bridge转化mat
+
+        //在消息回调函数里面发布另一个话题的消息
         StampInfoPub.publish(result_msg);
         FaceInfoPub.publish(face_msg);
 
         // 得到分析结果，发布特定数据
-        vector<Yolo::Detection> result = YoloV5::AnalyzeOneShot(frameFace);
+        vector<Yolo::Detection> result = YoloV5::AnalyzeOneShot(frame); //返回存储bundingbox的vector
         CurFaceResult.DealYoloResult(result); // rect先不做转换。在canvas上绘图时再具体生成坐标
+        //是否多张人脸
         if(CurFaceResult.FaceNum > 1){
             face_msg.IsMultiFace = true;
         }
@@ -88,7 +98,7 @@ int main(int argc, char **argv)
 
     CurAnalyzeStamp = ros::Time::now();
     StampInfoPub = node_analyze.advertise<driver_face::ResultMsg>("/camera_csi0/cur_result", 1);
-    FaceInfoPub = node_analyze.advertise<driver_face::FaceRecMSg>("/camera_csi0/face_result", 1);
+    FaceInfoPub = node_analyze.advertise<driver_face::FaceRecMsg>("/camera_csi0/face_result", 1);
 
     image_transport::ImageTransport it(node_analyze);
     image_transport::Subscriber sub = it.subscribe("/camera_csi0/frames", 1, imageCallback);
