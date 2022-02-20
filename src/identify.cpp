@@ -12,13 +12,14 @@
 using std::cout;
 using std::endl;
 
-void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
+void imageCallback(const driver_face::FaceRecMsg::ConstPtr &msg)  //常量类型 对定义消息的常量指针的引用（msg）
 {
     //sensor_msgs::Image ROS中image传递的消息形式
     try
     {
         if(msg->IsFace == true)
             cout<<" IsFace" <<endl;
+            //ROS_INFO("是否检测到人脸：%d",msg->Isface)//? 输出日志的写法 不知道是否正确
         if(msg->IsMultiFace == true)
             cout<<" IsMultiFace" <<endl;    
         // cout  <<  " IsFace" << msg->IsFace << "IsMultiFace" << msg->IsMultiFace << endl;
@@ -37,12 +38,13 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
+    //setlocale(LC_ALL,"");       //输出中文加这个不会乱码
     ros::init(argc, argv, "image_identify_node");
     ros::NodeHandle node_identify;
     cv::namedWindow("view2",cv::WINDOW_NORMAL); 
 
-    ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback);    
-    ros::spin();    
+    ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback); //订阅者的消息范型可以不显示指出，可以自动推导   
+    ros::spin();    //回头，处理回调函数，通常订阅者是spin，发布者是spinonce
     cv::destroyWindow("view2");    //窗口
 
     return 0;

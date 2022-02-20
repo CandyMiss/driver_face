@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     cv_bridge::CvImagePtr frame = boost::make_shared<cv_bridge::CvImage>();
     frame->encoding = sensor_msgs::image_encodings::BGR8;
 
-    while(ros::ok())
+    while(ros::ok())    //当前节点不挂
     {
         capture >> frame->image; //流的转换
 
@@ -89,7 +89,8 @@ int main(int argc, char **argv)
         pub_image.publish(frame->toImageMsg());
 
         cv::waitKey(3);//opencv刷新图像 3ms
-        ros::spinOnce();
+        ros::spinOnce();                        //处理循环函数中的回调函数，官方建议在发布者程序添加
+        
     }
 
     capture.release();    //释放流
