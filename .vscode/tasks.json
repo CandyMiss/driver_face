@@ -1,0 +1,31 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"args": [
+				"--directory",
+				"/home/nvidia/wdq/ros_vision"
+			],
+			"problemMatcher": [
+				//"$catkin-gcc",
+				"$msCompile"
+			],
+			"group": {"kind":"build","isDefault":true},
+			"label": "catkin_make: debug",
+			"command":"catkin_make"
+		}
+		// {
+		// 	"type": "catkin_make",
+		// 	"args": [
+		// 		"--directory",
+		// 		"/home/nvidia/wdq/ros_vision"
+		// 	],
+		// 	"problemMatcher": [
+		// 		"$catkin-gcc"
+		// 	],
+		// 	"group": "build",
+		// 	"label": "catkin_make: build"
+		// }
+	]
+}

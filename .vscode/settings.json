@@ -10,6 +10,10 @@
         "/opt/ros/melodic/lib/python2.7/dist-packages"
     ],
     "files.associations": {
-        "iostream": "cpp"
-    }
+        "iostream": "cpp",
+        "iosfwd": "cpp",
+        "*.tcc": "cpp",
+        "chrono": "cpp"
+    },
+    "cmake.configureOnOpen": true
 }

@@ -115,7 +115,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-unknown-pragmas -O
 
 # 不明白工程里的问题，这里凡是使用了 CUDA代码，都要编译为动态链接库才能使用
 cuda_add_library(yololayer SHARED src/yolov5/yololayer.cu)
-##cuda_add_library(face_similarity SHARED ${PROJECT_SOURCE_DIR}/arcface/face_similarity.cu)
+cuda_add_library(face_similarity SHARED ${PROJECT_SOURCE_DIR} src/arcface/face_similarity.cu)
 
 add_message_files(
   FILES
@@ -211,11 +211,14 @@ add_executable(Analyzer src/analyze.cpp
         src/utils/logging.h
         src/utils/utils.h
         src/utils/dataset.h src/utils/dataset.cpp
+        src/utils/cfg_params.h src/utils/cfg_params.cpp
+        src/pfld/pfld.h src/pfld/pfld.cpp
+        src/pfld/face_gesture.h src/pfld/face_gesture.cpp
         src/data/results.h src/data/results.cpp
-#        src/database/SqliteOp.h src/database/SqliteOp.cpp
         src/yolov5/common.h src/yolov5/common.cpp
         src/yolov5/yololayer.h src/yolov5/yololayer.cu
         src/yolov5/yolov5.h src/yolov5/yolov5.cpp)
+
 target_link_libraries(Analyzer ${catkin_LIBRARIES})
 add_dependencies(Analyzer ${PROJECT_NAME}_generate_messages_cpp)
 
@@ -224,7 +227,17 @@ add_executable(Renderer src/render.cpp
 target_link_libraries(Renderer ${catkin_LIBRARIES})
 add_dependencies(Renderer ${PROJECT_NAME}_generate_messages_cpp)
 
-add_executable(Identifier src/identify.cpp)
+add_executable(Identifier src/identify.cpp
+        src/utils/cfg_params.h src/utils/cfg_params.cpp
+        src/data/results.h src/data/results.cpp
+        src/pfld/pfld.h src/pfld/pfld.cpp
+        src/pfld/face_gesture.h src/pfld/face_gesture.cpp
+        src/arcface/prelu.h src/arcface/prelu.cu
+        src/arcface/arcface.cpp src/arcface/arcface.h
+        src/arcface/draw_mask.cpp src/arcface/draw_mask.h
+        src/arcface/face_similarity.cu
+        src/database/SqliteOp.cpp src/database/SqliteOp.h
+        src/yolov5/common.h src/yolov5/common.cpp)
 target_link_libraries(Identifier ${catkin_LIBRARIES})
 add_dependencies(Identifier ${PROJECT_NAME}_generate_messages_cpp)
 
@@ -250,8 +263,18 @@ target_link_libraries(Analyzer gstbase-1.0)
 target_link_libraries(Analyzer gstapp-1.0)
 target_link_libraries(Analyzer gstnet-1.0)
 
+target_link_libraries(Identifier nvinfer)
+target_link_libraries(Identifier cudart)
+target_link_libraries(Identifier yololayer)
+target_link_libraries(Identifier face_similarity)
+target_link_libraries(Identifier sqlite3)
+
 include_directories(/usr/include/freetype2)
+include_directories(/usr/include/libxml2)
 target_link_libraries(Renderer freetype)
+target_link_libraries(Analyzer xml2)
+target_link_libraries(Identifier xml2)
+
 
 # find_package (Threads)
 # target_link_libraries (Analyzer ${CMAKE_THREAD_LIBS_INIT})

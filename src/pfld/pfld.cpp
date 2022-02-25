@@ -362,7 +362,7 @@ namespace PFLD
         char *trtModelStream{nullptr};
         size_t size{0};
 
-        std::ifstream file("pfld.engine", std::ios::binary);
+        std::ifstream file("/home/nvidia/wdq/PFLDGenEngin/build/pfld.engine", std::ios::binary);
         if (file.good())
         {
             file.seekg(0, file.end);
@@ -413,6 +413,7 @@ namespace PFLD
         int i = 0;
         for (int row = 0; row < INPUT_H; ++row)
         {
+            //cout << "for" << endl;
             uchar *uc_pixel = pr_img.data + row * pr_img.step;
             for (int col = 0; col < INPUT_W; ++col)
             {
@@ -428,7 +429,7 @@ namespace PFLD
         doInference(*context, data, prob, 1);  //验证，输入data，输出prob，batch为1
         auto end = std::chrono::system_clock::now();
         std::cout << "PFLD RUN time: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+                 << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
 
         return 0;
     }

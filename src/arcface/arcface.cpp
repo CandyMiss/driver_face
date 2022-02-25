@@ -299,7 +299,7 @@ namespace ArcFace
         char *trtModelStream{nullptr};
         size_t size{0};
 
-        std::ifstream file("arcface.engine", std::ios::binary);
+        std::ifstream file("/home/nvidia/wdq/ArcFaceGenEngine/build/arcface.engine", std::ios::binary);
         if (file.good())
         {
             file.seekg(0, file.end);

@@ -1,3 +1,3 @@
 # driver_face
-
-//rostopic echo 话题名称 可以查看当前话题发布的消息
+本地打开的文件夹需要是不包含同名项目的文件夹
+//tx2pull test

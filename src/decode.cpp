@@ -30,31 +30,31 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "pub_cam_node");  //argc:remapping 参数的个数，argv参数列表，运行时节点名
     ros::NodeHandle n;
 
-//tx2
-    int capture_width = 1280 ;
-    int capture_height = 720 ;
+// //tx2
+//     int capture_width = 1280 ;
+//     int capture_height = 720 ;
+//     int display_width = 1280 ;
+//     int display_height = 720 ;
+//     int framerate = 10 ;
+//     int flip_method =2 ;
+
+//     std::string pipeline = gstreamer_pipeline(capture_width,
+//                            capture_height,
+//                            display_width,
+//                            display_height,
+//                            framerate,
+//                            flip_method);
+    
+    // //hk
+    std::string uri = "rtsp://admin:Admin12345@192.168.1.65:554/Streaming/Channels/1";
     int display_width = 1280 ;
     int display_height = 720 ;
-    int framerate = 10 ;
-    int flip_method =2 ;
+    int latency = 0 ;
 
-    std::string pipeline = gstreamer_pipeline(capture_width,
-                           capture_height,
-                           display_width,
-                           display_height,
-                           framerate,
-                           flip_method);
-    
-    // // //hk
-    // std::string uri = "rtsp://admin:Admin12345@192.168.1.65:554/Streaming/Channels/1";
-    // int display_width = 1280 ;
-    // int display_height = 720 ;
-    // int latency = 0 ;
-
-    // std::string pipeline = gstreamer_pipeline(uri,
-    //             latency, 
-    //             display_width,
-    //             display_height);
+    std::string pipeline = gstreamer_pipeline(uri,
+                latency, 
+                display_width,
+                display_height);
 
     // cout << "Using pipeline: \n\t" << pipeline << endl;
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     cv_bridge::CvImagePtr frame = boost::make_shared<cv_bridge::CvImage>();
     frame->encoding = sensor_msgs::image_encodings::BGR8;
 
-    while(ros::ok())    //当前节点不挂
+    while(ros::ok())
     {
         capture >> frame->image; //流的转换
 
@@ -89,8 +89,7 @@ int main(int argc, char **argv)
         pub_image.publish(frame->toImageMsg());
 
         cv::waitKey(3);//opencv刷新图像 3ms
-        ros::spinOnce();                        //处理循环函数中的回调函数，官方建议在发布者程序添加
-        
+        ros::spinOnce();
     }
 
     capture.release();    //释放流

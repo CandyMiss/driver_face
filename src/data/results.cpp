@@ -2,6 +2,8 @@
 #include "../pfld/face_gesture.h"
 #include "../font/CvxText.h"
 #include "../database/SqliteOp.h"
+#include "../pfld/pfld.h"
+
 
 using namespace std;
 using cv::Mat;
@@ -21,10 +23,10 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
     // 仅保留面积最大的那个对象——对于单个驾驶员而言，以下所有的对象都是唯一的
     float areaHead{0.0};
     float areaFace{0.0};
-    float areaEyeHead{0.0};
-    float areaMouthHead{0.0};
-    float areaCigarette{0.0};
-    float areaPhone{0.0};
+   //float areaEyeHead{0.0};
+    //float areaMouthHead{0.0};
+    //float areaCigarette{0.0};
+    //float areaPhone{0.0};
     FaceNum = 0;
 
     for (vector<Detection>::iterator iter = driverResult.begin(); iter != driverResult.end(); ++iter)
@@ -151,3 +153,56 @@ void DriverIDResult::GetIDReuslt()                                      //找多
 // }
 
 #pragma endregion
+
+void DriverResult::DealFaceResult(float *pointsFace)
+{
+    analyzeFaceState(pointsFace);
+    getFacePointMapPos(pointsFace);
+}
+
+
+void DriverResult::ResetPointState()
+{
+    FaceAngleHoriz = -1.0;
+    FaceAngelVirt = -1.0;
+    EyeOpen = -1.0;
+    MouthOpen = -1.0;
+}
+
+void DriverResult::analyzeFaceState(float *pointsFace)
+{
+//    暂且认为脸部捕捉都是准的
+//    IsFaceValid = PFLD::FaceValidation(pointsFace);
+    cout << "脸部有效记录(实时计算)：" << IsFaceValid << endl;
+
+    if (FaceCaptured)   // 当前只分析正脸
+    {
+        FaceAngleHoriz = PFLD::FaceHorizAngle(pointsFace);
+        FaceAngelVirt = PFLD::FaceVirtAngle(pointsFace);
+        EyeOpen = PFLD::EyeEARResult(pointsFace);
+        MouthOpen = PFLD::MouthMARResult(pointsFace);
+    }
+    else
+    {
+        FaceAngleHoriz = -1.0;
+        FaceAngelVirt = -1.0;
+        EyeOpen = -1.0;
+        MouthOpen = -1.0;
+    }
+}
+
+void DriverResult::getFacePointMapPos(float *pointsFace)
+{
+    // center_x center_y w h转换(目前还是608*608范围，这是YoloV5的遗留问题)
+    float faceLeft = RectFacePoint[0] - RectFacePoint[2] / 2.f;
+    float faceWidth = RectFacePoint[2];
+    float faceTop = RectFacePoint[1] - RectFacePoint[3] / 2.f;
+    float faceHeight = RectFacePoint[3];
+    // 所有面部关键点映射成yolo的608*608范围
+    for (unsigned int i = 0; i < PFLD::POINT_NUM; i++)
+    {
+        // x_yolo = x_face * w_yolo + left_yolo，y坐标类似
+        PointsFace[i * 2] = pointsFace[i * 2] * faceWidth + faceLeft;
+        PointsFace[i * 2 + 1] = pointsFace[i * 2 + 1] * faceHeight + faceTop;
+    }
+}

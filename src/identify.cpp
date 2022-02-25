@@ -9,26 +9,59 @@
 #include <queue>
 #include <map>
 
+#include "./pfld/pfld.h"
+#include "./arcface/arcface.h"
+#include "data/results.h"
+#include "database/SqliteOp.h"
+
 using std::cout;
 using std::endl;
 
-void imageCallback(const driver_face::FaceRecMsg::ConstPtr &msg)  //常量类型 对定义消息的常量指针的引用（msg）
+// 当前结果寄存处
+
+DriverIDResult *CurDriverIDResult;
+Results *AllResult;
+DriverResult driverResult;
+static float prob[PFLD::OUTPUT_SIZE];
+float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
+
+void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
 {
     //sensor_msgs::Image ROS中image传递的消息形式
     try
     {
-        if(msg->IsFace == true)
-            cout<<" IsFace" <<endl;
-            //ROS_INFO("是否检测到人脸：%d",msg->Isface)//? 输出日志的写法 不知道是否正确
-        if(msg->IsMultiFace == true)
-            cout<<" IsMultiFace" <<endl;    
-        // cout  <<  " IsFace" << msg->IsFace << "IsMultiFace" << msg->IsMultiFace << endl;
+        if(msg->IsFace == true){
+            ROS_INFO("IsFace");
+                       if(msg->IsMultiFace == true){
+                            ROS_INFO(" IsMultiFace");                      
+                       }
+        }else{
+            ROS_INFO("no face");
+        }
+ 
+        
         boost::shared_ptr<void const> tracked_object;    //共享指针,原来初始化了：boost::shared_ptr<void const> tracked_object(&(msg->FaceImage))
-        cv::Mat canvas = cv_bridge::toCvShare(msg->FaceImage, tracked_object,"bgr8")->image;
-        //cv::circle(canvas, cv::Point(520, 430), 200, cv::Scalar(255, 0, 0), 8);
-        cv::imshow("view2", canvas);    
+        cv::Mat faceMat = cv_bridge::toCvShare(msg->FaceImage, tracked_object,"bgr8")->image;
+        
+        cv::imshow("view2", faceMat);    
         cv::waitKey(3); 
         
+        if(msg->IsFace == true && msg->IsMultiFace==false){
+            //get tmp face feature
+            ArcFace::GetFaceFeature(faceMat, tmpFaceFeature);
+            cout << (*tmpFaceFeature) << endl;
+            //do inference get face id
+
+
+            //得到人脸关键点
+            PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
+            driverResult.DealFaceResult(prob);
+
+            cout << 'prob' << (*prob)<< endl;
+        }
+        else{
+            driverResult.ResetPointState();
+        }
     }
     catch (cv_bridge::Exception& e)
     {
@@ -38,13 +71,20 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr &msg)  //常量类型
 
 int main(int argc, char **argv)
 {
-    //setlocale(LC_ALL,"");       //输出中文加这个不会乱码
     ros::init(argc, argv, "image_identify_node");
     ros::NodeHandle node_identify;
-    cv::namedWindow("view2",cv::WINDOW_NORMAL); 
 
-    ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback); //订阅者的消息范型可以不显示指出，可以自动推导   
-    ros::spin();    //回头，处理回调函数，通常订阅者是spin，发布者是spinonce
+    //防止崩溃，所有模型引擎优先初始化
+    cudaSetDevice(DEVICE);
+    ArcFace::InitArcFaceEngine();
+    cout << "ArcFace 引擎序列化完成"  << std::endl;
+    PFLD::InitPFLDEngine();
+    cout << "PFLD 引擎序列化完成" <<  std::endl;
+
+    cv::namedWindow("view2",cv::WINDOW_NORMAL); 
+    ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback);    
+    ros::spin();   
+
     cv::destroyWindow("view2");    //窗口
 
     return 0;
