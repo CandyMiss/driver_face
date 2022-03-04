@@ -22,14 +22,30 @@ using std::endl;
 DriverIDResult *CurDriverIDResult;
 Results *AllResult;
 DriverResult driverResult;
+
 static float prob[PFLD::OUTPUT_SIZE];
+static unsigned int DoFaceIDTimes = 0;
+static int faceId = 0;
 float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
+
+inline void printVector(float *tmpFaceFeature){
+    for(int i=0; i<ArcFace::FACE_FEATURE_DIMENSION; ++i){
+        cout << tmpFaceFeature[i] << " ";
+    }
+    cout << endl;
+}
 
 void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
 {
     //sensor_msgs::Image ROS中image传递的消息形式
     try
     {
+        boost::shared_ptr<void const> tracked_object;    //共享指针,原来初始化了：boost::shared_ptr<void const> tracked_object(&(msg->FaceImage))
+        cv::Mat faceMat = cv_bridge::toCvShare(msg->FaceImage, tracked_object,"bgr8")->image;
+        
+        cv::imshow("view2", faceMat);    
+        cv::waitKey(3); 
+        
         if(msg->IsFace == true){
             ROS_INFO("IsFace");
                        if(msg->IsMultiFace == true){
@@ -38,28 +54,29 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
         }else{
             ROS_INFO("no face");
         }
- 
-        
-        boost::shared_ptr<void const> tracked_object;    //共享指针,原来初始化了：boost::shared_ptr<void const> tracked_object(&(msg->FaceImage))
-        cv::Mat faceMat = cv_bridge::toCvShare(msg->FaceImage, tracked_object,"bgr8")->image;
-        
-        cv::imshow("view2", faceMat);    
-        cv::waitKey(3); 
+
         
         if(msg->IsFace == true && msg->IsMultiFace==false){
             //get tmp face feature
+            memset(tmpFaceFeature, 0, sizeof(tmpFaceFeature));
+            printVector(tmpFaceFeature);
             ArcFace::GetFaceFeature(faceMat, tmpFaceFeature);
-            cout << (*tmpFaceFeature) << endl;
+            printVector(tmpFaceFeature);
             //do inference get face id
+            ArcFace::DetectFaceID(faceMat, faceId, tmpFaceFeature);
+            cout << "Face-----------------------------------------ID: " << faceId << endl << endl;
+            // CurDriverIDResult->AddOneRecogResult(faceId, tmpFaceFeature);
 
 
             //得到人脸关键点
             PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
             driverResult.DealFaceResult(prob);
 
-            cout << 'prob' << (*prob)<< endl;
+            cout << "prob" << (*prob)<< endl;
         }
         else{
+            //没找到可识别的人脸目标，或者追踪失败
+            DoFaceIDTimes = 0;
             driverResult.ResetPointState();
         }
     }
@@ -80,13 +97,18 @@ int main(int argc, char **argv)
     cout << "ArcFace 引擎序列化完成"  << std::endl;
     PFLD::InitPFLDEngine();
     cout << "PFLD 引擎序列化完成" <<  std::endl;
+     // 初始化所有人脸数据
+    ArcFace::ReadFaceDataToGPU();
+    cout << "初始化人脸数据完成" <<  std::endl;   
 
     cv::namedWindow("view2",cv::WINDOW_NORMAL); 
     ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback);    
     ros::spin();   
 
     cv::destroyWindow("view2");    //窗口
-
+    //YoloV5::ReleaseYoloV5Engine();
+    PFLD::ReleasePFLDEngine();
+    ArcFace::ReleasePFLDEngine();
     return 0;
 
 }

@@ -329,8 +329,11 @@ namespace ArcFace
 
     void preImg(cv::Mat faceImg, float *h_data)
     {
+//        std::cout << "In preImg function" << std::endl;
         cv::Mat img(INPUT_H, INPUT_W, CV_8UC3);  //申请的cv中存图片的格式CV_8UC3
+//        std::cout << "start resize image" << std::endl;
         cv::resize(faceImg, img, img.size(), 0, 0);
+//        std::cout << "resize image finish" << std::endl; 
 
         for (int i = 0; i < INPUT_H * INPUT_W; i++)
         {
@@ -347,12 +350,21 @@ namespace ArcFace
         doInference(h_data, faceFeature);
     }
 
+    inline void printVector(float *tmpFaceFeature, int lenth){
+        for(int i=0; i<lenth; ++i){
+            std::cout << tmpFaceFeature[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+
     void DetectFaceID(cv::Mat faceImg, int &faceID, float *faceBestFeature)
     {
         auto start = std::chrono::system_clock::now();
-        float h_data[BATCH_SIZE * 3 * INPUT_H * INPUT_W];
+        float h_data[BATCH_SIZE * 3 * INPUT_H * INPUT_W];   //输入大小：batch size×3×h×w
         preImg(faceImg, h_data);
-
+        std::cout << "preImg finish" << std::endl;
+        ////test
+        faceID = 10;
         doInferenceGetID(h_data, faceBestFeature, faceID);
         auto end = std::chrono::system_clock::now();
         std::cout << "ArcFace RUN time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
@@ -382,6 +394,7 @@ namespace ArcFace
 
         // Release stream and buffers
         cudaStreamDestroy(stream);
+
         CHECK(cudaFree(buffers[inputIndex]));
         CHECK(cudaFree(buffers[outputIndex]));
     }
@@ -395,9 +408,10 @@ namespace ArcFace
         assert(engine.getNbBindings() == 2);
         void *buffers[2];
 
-        const int inputIndex = engine.getBindingIndex(INPUT_BLOB_NAME);//data
+        const int inputIndex = engine.getBindingIndex(INPUT_BLOB_NAME);//data 0号引擎
         const int outputIndex = engine.getBindingIndex(OUTPUT_BLOB_NAME);
-
+      
+        //&引用传递的参数，修改效果会和实参保持一致
         CHECK(cudaMalloc(&buffers[inputIndex], BATCH_SIZE * 3 * INPUT_H * INPUT_W * sizeof(float)));
         CHECK(cudaMalloc(&buffers[outputIndex], BATCH_SIZE * FACE_FEATURE_DIMENSION * sizeof(float)));
 
@@ -405,17 +419,24 @@ namespace ArcFace
         CHECK(cudaStreamCreate(&stream));
 
         CHECK(cudaMemcpyAsync(buffers[inputIndex], input, BATCH_SIZE * 3 * INPUT_H * INPUT_W * sizeof(float), cudaMemcpyHostToDevice, stream));
+     
         context->enqueue(BATCH_SIZE, buffers, stream, nullptr);
         CHECK(cudaMemcpyAsync(output, buffers[outputIndex], BATCH_SIZE * FACE_FEATURE_DIMENSION * sizeof(float), cudaMemcpyDeviceToHost, stream));
 
         cudaStreamSynchronize(stream);
 
         //cuda加速得到人脸的id
+        //GetSimilarityIndex有误
         faceId = GetSimilarityIndex((float *) buffers[outputIndex]);    //注意一定要传入cuda端的数据
-
+        std::cout << "faceID: " << faceId <<  std::endl;
         cudaStreamDestroy(stream);
-        CHECK(cudaFree(buffers[inputIndex]));
-        CHECK(cudaFree(buffers[outputIndex]));
+
+        cudaFree(buffers[inputIndex]);
+        cudaFree(buffers[outputIndex]);
+        //CHECK(cudaFree(buffers[inputIndex]));
+       
+        //CHECK(cudaFree(buffers[outputIndex]));
+
     }
 
     //计算余弦相似度
