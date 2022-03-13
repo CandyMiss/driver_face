@@ -55,7 +55,7 @@ extern "C" int GetSimilarityIndex(float *d_face_buffers)    // 直接处理cuda�
 
     cudaMemcpy(h_similar_result, d_similar_result, FACE_NUM * sizeof(float), cudaMemcpyDeviceToHost);
 
-    int h_id = -1;                                                                              // 返回-1表示没找到
+    int h_id = 0;                                                    //返回0表示没找到
     for (unsigned int i = 1; i < FACE_NUM; i++)                     //从下标1开始找
     {
         if (h_similar_result[i] > h_similar_result[h_id])
