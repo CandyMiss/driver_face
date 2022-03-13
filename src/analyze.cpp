@@ -48,13 +48,13 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         if(CurFaceResult.FaceCaptured)
         {
             result_msg.FaceGesture = 1;
-            face_msg.IsFace = true;
+            face_msg.hasFace = true;
             face_frame = frame(rect); //截出人脸的图像
         }
         else
         {
             result_msg.FaceGesture = 0;
-            face_msg.IsFace = false;
+            face_msg.hasFace = false;
             face_frame = frame; //截出人脸的图像
         }
 
@@ -69,10 +69,10 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         CurFaceResult.DealYoloResult(result); // rect先不做转换。在canvas上绘图时再具体生成坐标
         //是否多张人脸
         if(CurFaceResult.FaceNum > 1){
-            face_msg.IsMultiFace = true;
+            face_msg.isMultiface = true;
         }
         else{
-            face_msg.IsMultiFace = false;
+            face_msg.isMultiface = false;
         }
         cout << "Yolo V5 检测结果：" << CurFaceResult.toString() << endl;
         if(CurFaceResult.FaceCaptured != FALSE)

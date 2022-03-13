@@ -95,17 +95,18 @@ DriverIDResult::DriverIDResult()
     string line;
     while (getline(infile, line))
     {
-        if (line.length() > suffix_len)
-        {
-            DriverIds.push_back(line.substr(0, line.length() - suffix_len));
-        }
+        //不需要添加面罩框了
+        // if (line.length() > suffix_len)
+        // {
+        //     DriverIds.push_back(line.substr(0, line.length() - suffix_len));
+        // }
     }
     infile.close();
 }
 
 void DriverIDResult::Reset()
 {
-    ID = -1;
+    ID = 0;
     memset(CurDriveFaceFeature, 0, ArcFace::FACE_FEATURE_DIMENSION * sizeof(float));
     faceIDRec.clear();
     faceFeatureRec.clear();
@@ -127,7 +128,7 @@ void DriverIDResult::AddOneRecogResult(int faceID, float *faceFeature)  //一次
 
 void DriverIDResult::GetIDReuslt()                                      //找多次识别之后最匹配的人
 {
-    int numIDMax = -1;
+    int numIDMax = 0;                                                                   //默认司机id从0开始
     for (map<int, int>::iterator iter = faceIDRec.begin(); iter != faceIDRec.end(); ++iter)
     {
         if (numIDMax < iter->second)

@@ -364,7 +364,7 @@ namespace ArcFace
         preImg(faceImg, h_data);
         std::cout << "preImg finish" << std::endl;
         ////test
-        faceID = 10;
+        //faceID = 10;
         doInferenceGetID(h_data, faceBestFeature, faceID);
         auto end = std::chrono::system_clock::now();
         std::cout << "ArcFace RUN time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;

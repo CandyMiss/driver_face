@@ -68,7 +68,7 @@ class DriverIDResult
 {
 public:
     static const unsigned int FACE_RECOG_TIMES = 10;    //连续检测人脸的次数
-    int ID{-1};
+    int ID{0};
     float CurDriveFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};
     std::vector<std::string> DriverIds;
 

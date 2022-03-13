@@ -1,5 +1,5 @@
-bool IsFace
-bool IsMultiFace
+bool hasFace
+bool isMultiface
 sensor_msgs/Image FaceImage
 
 

@@ -25,10 +25,12 @@ DriverResult driverResult;
 
 static float prob[PFLD::OUTPUT_SIZE];
 static unsigned int DoFaceIDTimes = 0;
-static int faceId = 0;
-float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
+static int faceId = 0;         //tmp人脸id
 
-inline void printVector(float *tmpFaceFeature){
+float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
+//cv::Mat faceQueue;
+
+inline void printVector(float *tmpFaceFeature){ //用于辅助测试特征是否被捕捉
     for(int i=0; i<ArcFace::FACE_FEATURE_DIMENSION; ++i){
         cout << tmpFaceFeature[i] << " ";
     }
@@ -46,37 +48,37 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
         cv::imshow("view2", faceMat);    
         cv::waitKey(3); 
         
-        if(msg->IsFace == true){
-            ROS_INFO("IsFace");
-                       if(msg->IsMultiFace == true){
-                            ROS_INFO(" IsMultiFace");                      
+        if(msg->hasFace == true){
+            ROS_INFO("hasFace");
+                       if(msg->isMultiface == true){
+                            ROS_INFO(" isMultiface");                      
                        }
         }else{
             ROS_INFO("no face");
         }
 
         
-        if(msg->IsFace == true && msg->IsMultiFace==false){
+        if(msg->hasFace == true && msg->isMultiface==false){
             //get tmp face feature
             memset(tmpFaceFeature, 0, sizeof(tmpFaceFeature));
-            printVector(tmpFaceFeature);
+            //printVector(tmpFaceFeature);
             ArcFace::GetFaceFeature(faceMat, tmpFaceFeature);
-            printVector(tmpFaceFeature);
+            //printVector(tmpFaceFeature);
             //do inference get face id
             ArcFace::DetectFaceID(faceMat, faceId, tmpFaceFeature);
             cout << "Face-----------------------------------------ID: " << faceId << endl << endl;
-            // CurDriverIDResult->AddOneRecogResult(faceId, tmpFaceFeature);
 
 
-            //得到人脸关键点
-            PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
-            driverResult.DealFaceResult(prob);
+            // //得到人脸关键点
+            // PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
+            // driverResult.DealFaceResult(prob);
 
-            cout << "prob" << (*prob)<< endl;
+            // cout << "prob" << (*prob)<< endl;
         }
         else{
             //没找到可识别的人脸目标，或者追踪失败
             DoFaceIDTimes = 0;
+            faceId = 0;
             driverResult.ResetPointState();
         }
     }

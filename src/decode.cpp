@@ -14,47 +14,47 @@ std::string gstreamer_pipeline (int capture_width, int capture_height, int displ
            std::to_string(display_height) + ", format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
 }
 
-// //hk
-std::string gstreamer_pipeline(std::string uri, int latency, int display_width, int display_height) 
-{
-    return "rtspsrc location=" + uri +
-            " latency=" + std::to_string(latency) +
-            " ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, " + 
-            "width=(int)" + std::to_string(display_width) + 
-            ", height=(int)" + std::to_string(display_height) + 
-            ", format=(string)BGRx ! videoconvert ! appsink";
-}
+// // //hk
+// std::string gstreamer_pipeline(std::string uri, int latency, int display_width, int display_height) 
+// {
+//     return "rtspsrc location=" + uri +
+//             " latency=" + std::to_stsring(latency) +
+//             " ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, " + 
+//             "width=(int)" + std::to_string(display_width) + 
+//             ", height=(int)" + std::to_string(display_height) + 
+//             ", format=(string)BGRx ! videoconvert ! appsink";
+// }
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "pub_cam_node");  //argc:remapping 参数的个数，argv参数列表，运行时节点名
     ros::NodeHandle n;
 
-// //tx2
-//     int capture_width = 1280 ;
-//     int capture_height = 720 ;
-//     int display_width = 1280 ;
-//     int display_height = 720 ;
-//     int framerate = 10 ;
-//     int flip_method =2 ;
-
-//     std::string pipeline = gstreamer_pipeline(capture_width,
-//                            capture_height,
-//                            display_width,
-//                            display_height,
-//                            framerate,
-//                            flip_method);
-    
-    // //hk
-    std::string uri = "rtsp://admin:Admin12345@192.168.1.65:554/Streaming/Channels/1";
+//tx2
+    int capture_width = 1280 ;
+    int capture_height = 720 ;
     int display_width = 1280 ;
     int display_height = 720 ;
-    int latency = 0 ;
+    int framerate = 10 ;
+    int flip_method =2 ;
 
-    std::string pipeline = gstreamer_pipeline(uri,
-                latency, 
-                display_width,
-                display_height);
+    std::string pipeline = gstreamer_pipeline(capture_width,
+                           capture_height,
+                           display_width,
+                           display_height,
+                           framerate,
+                           flip_method);
+    
+    // //hk
+    // std::string uri = "rtsp://admin:Admin12345@192.168.1.65:554/Streaming/Channels/1";
+    // int display_width = 1280 ;
+    // int display_height = 720 ;
+    // int latency = 0 ;
+
+    // std::string pipeline = gstreamer_pipeline(uri,
+    //             latency, 
+    //             display_width,
+    //             display_height);
 
     // cout << "Using pipeline: \n\t" << pipeline << endl;
 
