@@ -10,7 +10,7 @@ namespace ArcFace
     const int INPUT_W = 112;
     const int BATCH_SIZE = 1;  // currently, only support BATCH=1
 
-    const std::string face_data_filename = "face.data";
+    const std::string face_data_filename = "/home/nvidia/wdq/ros_vision/src/driver_face/src/res/face.data";
     const char *INPUT_BLOB_NAME = "data";
     const char *OUTPUT_BLOB_NAME = "prob";
 
@@ -26,10 +26,22 @@ namespace ArcFace
     {
         float gallaryData[GALLARY_NUM * FACE_FEATURE_DIMENSION];
         std::ifstream inFStream(face_data_filename.c_str(), std::ios::binary);
+        if(!inFStream){
+            std::cout << "Failed to open face data file." << std::endl;
+        }
+        else{
+            std::cout<< "Face data file opened successfully." << std::endl;
+        }
         inFStream.read((char *) &gallaryData, sizeof(gallaryData));
         inFStream.close();
 
         memcpy(FaceDataBase, gallaryData, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float));
+
+        int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
+        for(int i=0; i<1024; ++i){
+            std::cout << ArcFace::FaceDataBase[i] << "    ";
+        }
+        std::cout << std::endl;
 
         InitFaceGallaryToDevice(FaceDataBase);
     }
@@ -300,6 +312,12 @@ namespace ArcFace
         size_t size{0};
 
         std::ifstream file("/home/nvidia/wdq/ArcFaceGenEngine/build/arcface.engine", std::ios::binary);
+        if(!file.is_open()){
+            std::cout << "Failed to open arcface.engine." << std::endl;
+        }
+        else{
+            std::cout<< "arcface.engine file opened successfully." << std::endl;
+        }
         if (file.good())
         {
             file.seekg(0, file.end);
@@ -361,10 +379,15 @@ namespace ArcFace
     {
         auto start = std::chrono::system_clock::now();
         float h_data[BATCH_SIZE * 3 * INPUT_H * INPUT_W];   //输入大小：batch size×3×h×w
+        memset(h_data, 0, sizeof(h_data)); 
+         // std::cout << "test h_data" <<std::endl;
+        // printVector(h_data, BATCH_SIZE * 3 * INPUT_H * INPUT_W);
         preImg(faceImg, h_data);
+        //test h_data
+        // std::cout << "test h_data" <<std::endl;
+        // printVector(h_data, BATCH_SIZE * 3 * INPUT_H * INPUT_W);     //get h_data ok
         std::cout << "preImg finish" << std::endl;
-        ////test
-        //faceID = 10;
+
         doInferenceGetID(h_data, faceBestFeature, faceID);
         auto end = std::chrono::system_clock::now();
         std::cout << "ArcFace RUN time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
@@ -402,7 +425,7 @@ namespace ArcFace
     //第一次人脸识别，返回这个人的id（cos相似度取最大值），以及这个人的第一张feature map
     void doInferenceGetID(float *input, float *output, int &faceId)
     {
-        //形参为输入host_data数组，输入人脸库的2000x512的矩阵，输出特征图结果和id（从0开始）
+        //形参为输入host_data数组，输入一张人脸的数据：BATCH_SIZE * 3 * INPUT_H * INPUT_W，输出特征图结果和id（从0开始）
         const ICudaEngine &engine = context->getEngine();
 
         assert(engine.getNbBindings() == 2);
@@ -414,6 +437,16 @@ namespace ArcFace
         //&引用传递的参数，修改效果会和实参保持一致
         CHECK(cudaMalloc(&buffers[inputIndex], BATCH_SIZE * 3 * INPUT_H * INPUT_W * sizeof(float)));
         CHECK(cudaMalloc(&buffers[outputIndex], BATCH_SIZE * FACE_FEATURE_DIMENSION * sizeof(float)));
+        //buffers[outputIndex]存一批人脸特征
+
+        int lenth = BATCH_SIZE * FACE_FEATURE_DIMENSION;
+        // 测试buffers[outputIndex]里面的数据
+        std::cout << "buffers[outputIndex]:  "<< std::endl;
+        float* tmp = (float*)buffers[outputIndex];
+        // for(int i=0; i<lenth; ++i){
+        // std::cout << *(tmp++) << " ";
+        // }
+        // std::cout << std::endl;
 
         cudaStream_t stream;
         CHECK(cudaStreamCreate(&stream));
@@ -425,17 +458,24 @@ namespace ArcFace
 
         cudaStreamSynchronize(stream);
 
-        //cuda加速得到人脸的id
-        //GetSimilarityIndex有误
-        faceId = GetSimilarityIndex((float *) buffers[outputIndex]);    //注意一定要传入cuda端的数据
-        std::cout << "faceID: " << faceId <<  std::endl;
-        cudaStreamDestroy(stream);
+        //
+        // 测试buffers[outputIndex]里面的数据
+        std::cout << "buffers[outputIndex]:  "<< std::endl;
+        tmp = (float*)buffers[outputIndex];
+        // for(int i=0; i<lenth; ++i){
+        // std::cout << *(tmp++) << " ";
+        // }
+        // std::cout << std::endl;
 
-        cudaFree(buffers[inputIndex]);
-        cudaFree(buffers[outputIndex]);
-        //CHECK(cudaFree(buffers[inputIndex]));
-       
-        //CHECK(cudaFree(buffers[outputIndex]));
+
+        //cuda加速得到人脸的id
+        faceId = GetSimilarityIndex((float *) buffers[outputIndex]);    //注意一定要传入cuda端的数据
+
+        std::cout << "faceID: " << faceId <<  std::endl;
+        // Release stream and buffers
+        cudaStreamDestroy(stream);
+        CHECK(cudaFree(buffers[inputIndex]));
+        CHECK(cudaFree(buffers[outputIndex]));
 
     }
 

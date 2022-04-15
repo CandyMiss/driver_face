@@ -121,6 +121,7 @@ add_message_files(
   FILES
   ResultMsg.msg
   FaceRecMsg.msg
+  DriverIdMsg.msg
  )
 generate_messages(
   DEPENDENCIES
@@ -241,12 +242,17 @@ add_executable(Identifier src/identify.cpp
 target_link_libraries(Identifier ${catkin_LIBRARIES})
 add_dependencies(Identifier ${PROJECT_NAME}_generate_messages_cpp)
 
+add_executable(DriverID src/getDriverId.cpp)
+target_link_libraries(DriverID ${catkin_LIBRARIES})
+add_dependencies(DriverID ${PROJECT_NAME}_generate_messages_cpp)
+
 find_package(OpenCV)
 include_directories(OpenCV_INCLUDE_DIRS)
 target_link_libraries(Decoder ${OpenCV_LIBS})
 target_link_libraries(Analyzer ${OpenCV_LIBS})
 target_link_libraries(Renderer ${OpenCV_LIBS})
 target_link_libraries(Identifier ${OpenCV_LIBS})
+target_link_libraries(DriverID ${OpenCV_LIBS})
 
 target_link_libraries(Analyzer nvinfer)
 target_link_libraries(Analyzer cudart)

@@ -18,7 +18,7 @@ std::string gstreamer_pipeline (int capture_width, int capture_height, int displ
 // std::string gstreamer_pipeline(std::string uri, int latency, int display_width, int display_height) 
 // {
 //     return "rtspsrc location=" + uri +
-//             " latency=" + std::to_stsring(latency) +
+//             " latency=" + std::to_string(latency) +
 //             " ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, " + 
 //             "width=(int)" + std::to_string(display_width) + 
 //             ", height=(int)" + std::to_string(display_height) + 
@@ -45,18 +45,7 @@ int main(int argc, char **argv)
                            framerate,
                            flip_method);
     
-    // //hk
-    // std::string uri = "rtsp://admin:Admin12345@192.168.1.65:554/Streaming/Channels/1";
-    // int display_width = 1280 ;
-    // int display_height = 720 ;
-    // int latency = 0 ;
 
-    // std::string pipeline = gstreamer_pipeline(uri,
-    //             latency, 
-    //             display_width,
-    //             display_height);
-
-    // cout << "Using pipeline: \n\t" << pipeline << endl;
 
     //1 捕获视频
     cv::VideoCapture capture;
@@ -86,6 +75,16 @@ int main(int argc, char **argv)
         }
         //打成ROS数据包
         frame->header.stamp = ros::Time::now();
+        cv::Mat img = frame->image;
+        
+        //倒置画面，可以，但是画面上的日期信息也会倒置，不方面查看
+        cv::Mat pubimg;
+        flip(img,pubimg,-1);
+        frame->image = pubimg;
+        //test
+        // imshow("img:",img);
+	    // imshow("pubimg: -1",pubimg);
+        
         pub_image.publish(frame->toImageMsg());
 
         cv::waitKey(3);//opencv刷新图像 3ms

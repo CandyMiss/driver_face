@@ -3,6 +3,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 #include <driver_face/FaceRecMsg.h>
+#include <driver_face/DriverIdMsg.h>
 #include "font/CvxText.h"
 #include <iostream>
 
@@ -22,6 +23,9 @@ using std::endl;
 DriverIDResult *CurDriverIDResult;
 Results *AllResult;
 DriverResult driverResult;
+driver_face::DriverIdMsg driver_msg;
+
+ros::Publisher DriverInfoPub;
 
 static float prob[PFLD::OUTPUT_SIZE];
 static unsigned int DoFaceIDTimes = 0;
@@ -67,6 +71,13 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             //do inference get face id
             ArcFace::DetectFaceID(faceMat, faceId, tmpFaceFeature);
             cout << "Face-----------------------------------------ID: " << faceId << endl << endl;
+            driver_msg.driverID = faceId;
+            if(faceId != 0){
+                driver_msg.isDriver = true;
+            }
+            else{
+                driver_msg.isDriver = false;
+            }
 
 
             // //得到人脸关键点
@@ -77,10 +88,13 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
         }
         else{
             //没找到可识别的人脸目标，或者追踪失败
-            DoFaceIDTimes = 0;
-            faceId = 0;
-            driverResult.ResetPointState();
+            // DoFaceIDTimes = 0;
+            // faceId = 0;
+            // driverResult.ResetPointState();
+            driver_msg.isDriver = false;
+            driver_msg.driverID = faceId;
         }
+        DriverInfoPub.publish(driver_msg);
     }
     catch (cv_bridge::Exception& e)
     {
@@ -102,9 +116,13 @@ int main(int argc, char **argv)
      // 初始化所有人脸数据
     ArcFace::ReadFaceDataToGPU();
     cout << "初始化人脸数据完成" <<  std::endl;   
+    cout << "face teatrue:  "<< endl;
+
 
     cv::namedWindow("view2",cv::WINDOW_NORMAL); 
     ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback);    
+    DriverInfoPub = node_identify.advertise<driver_face::DriverIdMsg>("/camera_csi0/driver_id", 1);
+
     ros::spin();   
 
     cv::destroyWindow("view2");    //窗口
