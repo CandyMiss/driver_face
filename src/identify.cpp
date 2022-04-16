@@ -14,9 +14,11 @@
 #include "./arcface/arcface.h"
 #include "data/results.h"
 #include "database/SqliteOp.h"
+#include "utils/faceId_match.h"
 
 using std::cout;
 using std::endl;
+using std::map;
 
 // 当前结果寄存处
 
@@ -24,6 +26,7 @@ DriverIDResult *CurDriverIDResult;
 Results *AllResult;
 DriverResult driverResult;
 driver_face::DriverIdMsg driver_msg;
+FaceIdMatchMaker matchMaker;
 
 ros::Publisher DriverInfoPub;
 
@@ -33,6 +36,7 @@ static int faceId = 0;         //tmp人脸id
 
 float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
 //cv::Mat faceQueue;
+
 
 inline void printVector(float *tmpFaceFeature){ //用于辅助测试特征是否被捕捉
     for(int i=0; i<ArcFace::FACE_FEATURE_DIMENSION; ++i){
@@ -63,27 +67,20 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
 
         
         if(msg->hasFace == true && msg->isMultiface==false){
-            //get tmp face feature
-            memset(tmpFaceFeature, 0, sizeof(tmpFaceFeature));
-            //printVector(tmpFaceFeature);
-            ArcFace::GetFaceFeature(faceMat, tmpFaceFeature);
-            //printVector(tmpFaceFeature);
+            // //get tmp face feature
+            // memset(tmpFaceFeature, 0, sizeof(tmpFaceFeature));
+            // //printVector(tmpFaceFeature);
+            // ArcFace::GetFaceFeature(faceMat, tmpFaceFeature);
+            // //printVector(tmpFaceFeature);
+
+            
             //do inference get face id
             ArcFace::DetectFaceID(faceMat, faceId, tmpFaceFeature);
             cout << "Face-----------------------------------------ID: " << faceId << endl << endl;
-            driver_msg.driverID = faceId;
-            if(faceId != 0){
-                driver_msg.isDriver = true;
-            }
-            else{
-                driver_msg.isDriver = false;
-            }
-
-
+            matchMaker.addFaceId(faceId);
             // //得到人脸关键点
             // PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
             // driverResult.DealFaceResult(prob);
-
             // cout << "prob" << (*prob)<< endl;
         }
         else{
@@ -91,10 +88,22 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             // DoFaceIDTimes = 0;
             // faceId = 0;
             // driverResult.ResetPointState();
-            driver_msg.isDriver = false;
-            driver_msg.driverID = faceId;
+            // driver_msg.isDriver = false;
+            // driver_msg.driverID = faceId;
+            matchMaker.addFaceId(0);
         }
-        DriverInfoPub.publish(driver_msg);
+
+        bool getSuccess = matchMaker.detectFaceId(faceId);
+        if(getSuccess)
+        {
+            driver_msg.isDriver = true;
+            if (faceId == 0)
+            {
+                driver_msg.isDriver = false;
+            }
+            driver_msg.driverID = faceId;
+            DriverInfoPub.publish(driver_msg);
+        }
     }
     catch (cv_bridge::Exception& e)
     {

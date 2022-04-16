@@ -238,7 +238,8 @@ add_executable(Identifier src/identify.cpp
         src/arcface/draw_mask.cpp src/arcface/draw_mask.h
         src/arcface/face_similarity.cu
         src/database/SqliteOp.cpp src/database/SqliteOp.h
-        src/yolov5/common.h src/yolov5/common.cpp)
+        src/yolov5/common.h src/yolov5/common.cpp
+        src/utils/faceId_match.h src/utils/faceId_match.cpp)
 target_link_libraries(Identifier ${catkin_LIBRARIES})
 add_dependencies(Identifier ${PROJECT_NAME}_generate_messages_cpp)
 
