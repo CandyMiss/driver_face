@@ -83,7 +83,7 @@ int main(int argc, char **argv)
         frame->image = pubimg;
         //test
         // imshow("img:",img);
-	    // imshow("pubimg: -1",pubimg);
+	    //imshow("pubimg: -1",pubimg);
         
         pub_image.publish(frame->toImageMsg());
 

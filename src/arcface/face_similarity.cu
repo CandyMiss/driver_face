@@ -54,12 +54,12 @@ extern "C" int GetSimilarityIndex(float *d_face_buffers)    // 直接处理cuda�
     vectorMulti<<<blocksPerGrid, threadsPerBlock>>>(d_gallary_buffer, d_face_buffers, d_similar_result, FACE_NUM);
 
     cudaMemcpy(h_similar_result, d_similar_result, FACE_NUM * sizeof(float), cudaMemcpyDeviceToHost);
-    std::cout << "h_similar_result[0]:  " << h_similar_result[0] << std::endl;
+    //std::cout << "h_similar_result[0]:  " << h_similar_result[0] << std::endl;
 
     int h_id = 0;                                                    //返回0表示没找到
     for (unsigned int i = 1; i < FACE_NUM; i++)                     //从下标1开始找
     {
-        std::cout << "[i]:  " << i<< "h_similar_result[i]:  " << (float)h_similar_result[i] << std::endl;
+        //std::cout << "[i]:  " << i<< "h_similar_result[i]:  " << (float)h_similar_result[i] << std::endl;
         if (h_similar_result[i] > h_similar_result[h_id])
         {
             h_id = i;
@@ -90,12 +90,12 @@ extern "C" int GetSimilarityIndex(float *d_face_buffers)    // 直接处理cuda�
 
     std::cout << "h_id: " << h_id << "  h_similar_result[h_id]: "<< h_similar_result[h_id] << std::endl;
     //给出阈值，对于是别到的id，若最大的相似度不达标，返回结果为识别失败
-    if(h_similar_result[h_id] <= 0.56)
+    if(h_similar_result[h_id] <= 0.6)
         h_id = 0;
 
     cudaFree(d_similar_result);
     free(h_similar_result);
-    std::cout << "h_id: " << h_id << "  h_similar_result[h_id]: "<< h_similar_result[h_id] << std::endl;
+    // std::cout << "h_id: " << h_id << "  h_similar_result[h_id]: "<< h_similar_result[h_id] << std::endl;
     return h_id;
 }
 

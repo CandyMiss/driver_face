@@ -38,10 +38,11 @@ namespace ArcFace
         memcpy(FaceDataBase, gallaryData, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float));
 
         int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
-        for(int i=0; i<1024; ++i){
-            std::cout << ArcFace::FaceDataBase[i] << "    ";
-        }
-        std::cout << std::endl;
+        //test
+        // for(int i=0; i<1024; ++i){
+        //     std::cout << ArcFace::FaceDataBase[i] << "    ";
+        // }
+        // std::cout << std::endl;
 
         InitFaceGallaryToDevice(FaceDataBase);
     }
@@ -386,7 +387,7 @@ namespace ArcFace
         //test h_data
         // std::cout << "test h_data" <<std::endl;
         // printVector(h_data, BATCH_SIZE * 3 * INPUT_H * INPUT_W);     //get h_data ok
-        std::cout << "preImg finish" << std::endl;
+        // std::cout << "preImg finish" << std::endl;
 
         doInferenceGetID(h_data, faceBestFeature, faceID);
         auto end = std::chrono::system_clock::now();
@@ -440,9 +441,9 @@ namespace ArcFace
         //buffers[outputIndex]存一批人脸特征
 
         int lenth = BATCH_SIZE * FACE_FEATURE_DIMENSION;
-        // 测试buffers[outputIndex]里面的数据
-        std::cout << "buffers[outputIndex]:  "<< std::endl;
-        float* tmp = (float*)buffers[outputIndex];
+        // // 测试buffers[outputIndex]里面的数据
+        // std::cout << "buffers[outputIndex]:  "<< std::endl;
+        // float* tmp = (float*)buffers[outputIndex];
         // for(int i=0; i<lenth; ++i){
         // std::cout << *(tmp++) << " ";
         // }
@@ -459,9 +460,9 @@ namespace ArcFace
         cudaStreamSynchronize(stream);
 
         //
-        // 测试buffers[outputIndex]里面的数据
-        std::cout << "buffers[outputIndex]:  "<< std::endl;
-        tmp = (float*)buffers[outputIndex];
+        // // 测试buffers[outputIndex]里面的数据
+        // std::cout << "buffers[outputIndex]:  "<< std::endl;
+        // tmp = (float*)buffers[outputIndex];
         // for(int i=0; i<lenth; ++i){
         // std::cout << *(tmp++) << " ";
         // }

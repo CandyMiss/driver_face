@@ -74,6 +74,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         else{
             face_msg.isMultiface = false;
         }
+        cout << "hasFace：" <<  face_msg.hasFace << "   isMultiface：" <<  face_msg.isMultiface << endl;
         cout << "Yolo V5 检测结果：" << CurFaceResult.toString() << endl;
         if(CurFaceResult.FaceCaptured != FALSE)
         {
