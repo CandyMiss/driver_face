@@ -36,12 +36,33 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         CurAnalyzeStamp = stamp;
 		result_msg.CurAnalyzeStamp  = stamp;
 
+        CurFaceResult.FaceCaptured = false;
         // result_msg.FaceGesture = CurFaceResult.FaceCaptured;
-        cv::Rect rect = YoloV5::get_rect(frame, CurFaceResult.RectFace); // 坐标转换，得到框在图中的位置
-        result_msg.RectFace_x = rect.x;
-        result_msg.RectFace_y = rect.y;
-        result_msg.RectFace_w = rect.width;
-        result_msg.RectFace_h = rect.height;
+        cv::Rect rect = YoloV5::get_rect(frame, CurFaceResult.RectFace); // 坐标转换，得到目标框在图中的位置
+        // 得到分析结果
+        vector<Yolo::Detection> result = YoloV5::AnalyzeOneShot(frame); //返回存储bundingbox的vector
+        CurFaceResult.DealYoloResult(result);                           //分析目标检测的结果
+        
+
+        // 下标容易越界，必须保护一下，不然会异常崩溃
+        if (rect.x > 0 && rect.y > 0 && rect.width > 0 && rect.height > 0 &&
+            (rect.x + rect.width) < frame.cols &&
+            (rect.y + rect.height) < frame.rows)
+        {
+            result_msg.RectFace_x = rect.x;
+            result_msg.RectFace_y = rect.y;
+            result_msg.RectFace_w = rect.width;
+            result_msg.RectFace_h = rect.height;
+        }
+        else
+        {
+            CurFaceResult.FaceCaptured = false;
+            result_msg.RectFace_x = 0;
+            result_msg.RectFace_y = 0;
+            result_msg.RectFace_w = 0;
+            result_msg.RectFace_h = 0;
+        }
+
         cv::Mat face_frame;
 
         // 准备发布yolo检测结果，是否抓到人脸
@@ -57,29 +78,28 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
             face_msg.hasFace = false;
             face_frame = frame; //截出人脸的图像
         }
-
-        face_msg.FaceImage = *(cv_bridge::CvImage(std_msgs::Header(), "bgr8", face_frame ).toImageMsg());  //用cv_bridge转化mat
-
-        //在消息回调函数里面发布另一个话题的消息
-        StampInfoPub.publish(result_msg);
-        FaceInfoPub.publish(face_msg);
-
-        // 得到分析结果，发布特定数据
-        vector<Yolo::Detection> result = YoloV5::AnalyzeOneShot(frame); //返回存储bundingbox的vector
-        CurFaceResult.DealYoloResult(result); // rect先不做转换。在canvas上绘图时再具体生成坐标
         //是否多张人脸
-        if(CurFaceResult.FaceNum > 1){
+        if(CurFaceResult.FaceCaptured && CurFaceResult.FaceNum > 1){
             face_msg.isMultiface = true;
         }
         else{
             face_msg.isMultiface = false;
         }
+
+        face_msg.FaceImage = *(cv_bridge::CvImage(std_msgs::Header(), "bgr8", face_frame ).toImageMsg());  //用cv_bridge转化mat
+        
+        //提示信息
         cout << "hasFace：" <<  face_msg.hasFace << "   isMultiface：" <<  face_msg.isMultiface << endl;
-        cout << "Yolo V5 检测结果：" << CurFaceResult.toString() << endl;
-        if(CurFaceResult.FaceCaptured != FALSE)
+        cout << "Yolo V5 检测结果：" << CurFaceResult.toString() << endl;        
+        if(CurFaceResult.FaceCaptured != false)
         {
             cout << "位置：" << rect.x << ", " << rect.y << endl;
         }
+
+        //在消息回调函数里面发布另一个话题的消息
+        StampInfoPub.publish(result_msg);
+        FaceInfoPub.publish(face_msg);
+
     }
     catch (cv_bridge::Exception& e)
     {
