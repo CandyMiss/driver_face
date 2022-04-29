@@ -89,7 +89,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         face_msg.FaceImage = *(cv_bridge::CvImage(std_msgs::Header(), "bgr8", face_frame ).toImageMsg());  //用cv_bridge转化mat
         
         //提示信息
-        cout << "hasFace：" <<  face_msg.hasFace << "   isMultiface：" <<  face_msg.isMultiface << endl;
+        cout << "hasFace：" <<  (int)face_msg.hasFace << "   isMultiface：" <<  (int)face_msg.isMultiface << endl;
         cout << "Yolo V5 检测结果：" << CurFaceResult.toString() << endl;        
         if(CurFaceResult.FaceCaptured != false)
         {
