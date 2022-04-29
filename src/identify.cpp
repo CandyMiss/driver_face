@@ -19,6 +19,7 @@
 using std::cout;
 using std::endl;
 using std::map;
+using std::string;
 
 // 当前结果寄存处
 
@@ -33,6 +34,8 @@ ros::Publisher DriverInfoPub;
 static float prob[PFLD::OUTPUT_SIZE];
 static unsigned int DoFaceIDTimes = 0;
 static int faceId = 0;         //tmp人脸id
+
+std::string capture_path = "/home/nvidia/wdq/picture/capture/";   //存储拍摄的人脸照片
 
 float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
 //cv::Mat faceQueue;
@@ -103,6 +106,11 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             }
             driver_msg.driverID = faceId;
             DriverInfoPub.publish(driver_msg);
+            //存三张？
+            string time = std::to_string(ros::Time::now().toSec());
+            cv::imwrite(capture_path + time+"-1.jpg", faceMat);   //保存图片
+            cv::imwrite(capture_path + time+"-2.jpg", faceMat);   //保存图片
+            cv::imwrite(capture_path + time+"-3.jpg", faceMat);   //保存图片
         }
     }
     catch (cv_bridge::Exception& e)
@@ -125,7 +133,7 @@ int main(int argc, char **argv)
      // 初始化所有人脸数据
     ArcFace::ReadFaceDataToGPU();
     cout << "初始化人脸数据完成" <<  std::endl;   
-    cout << "face teatrue:  "<< endl;
+
 
 
     cv::namedWindow("view2",cv::WINDOW_NORMAL); 
