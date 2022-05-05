@@ -19,7 +19,7 @@ using namespace nvinfer1;
 namespace ArcFace
 {
     const static unsigned int FACE_FEATURE_DIMENSION = 512; //512维人脸特征
-    const static unsigned int GALLARY_NUM = 20000;   //2000人*10张照片
+    const static unsigned int GALLARY_NUM = 2000;   //200人*10张照片?改成20000的数字会在运行时产生段错误（核心已转储）的问题
 
     static Logger gLogger;
 
