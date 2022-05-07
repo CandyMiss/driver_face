@@ -82,8 +82,8 @@ int main(int argc, char **argv)
         flip(img,pubimg,-1);
         frame->image = pubimg;
         //test
-        imshow("img:",img); //tx2原摄像头倒置的
-	    imshow("pubimg: -1",pubimg);    //正向
+        // imshow("img:",img); //tx2原摄像头倒置的
+	    // imshow("pubimg: -1",pubimg);    //正向
         
         pub_image.publish(frame->toImageMsg());
 

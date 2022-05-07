@@ -128,8 +128,8 @@ int main(int argc, char **argv)
     cudaSetDevice(DEVICE);
     ArcFace::InitArcFaceEngine();
     cout << "ArcFace 引擎序列化完成"  << std::endl;
-    PFLD::InitPFLDEngine();
-    cout << "PFLD 引擎序列化完成" <<  std::endl;
+    // PFLD::InitPFLDEngine();
+    // cout << "PFLD 引擎序列化完成" <<  std::endl;
      // 初始化所有人脸数据
     ArcFace::ReadFaceDataToGPU();
     cout << "初始化人脸数据完成" <<  std::endl;   
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 
     cv::destroyWindow("view2");    //窗口
     //YoloV5::ReleaseYoloV5Engine();
-    PFLD::ReleasePFLDEngine();
+    // PFLD::ReleasePFLDEngine();
     ArcFace::ReleasePFLDEngine();
     return 0;
 
