@@ -21,6 +21,7 @@ namespace ArcFace
 
     // 人脸数据——理论上为2000人，每个人为512个特征数据
     float FaceDataBase[GALLARY_NUM * FACE_FEATURE_DIMENSION] = {0.0};
+    //float *FaceDataBase = (float*)(malloc(sizeof(float) * GALLARY_NUM * FACE_FEATURE_DIMENSION));
 
     void ReadFaceDataToGPU()
     {
@@ -36,26 +37,63 @@ namespace ArcFace
         inFStream.read((char *) &gallaryData, sizeof(gallaryData));
         inFStream.close();
         int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
-        //test
-        for(int i=0; i<tmplenth; ++i){
-            std::cout << gallaryData[i] << "    ";
-            if(i%512 == 0)
-            {
-                std::cout << std::endl;
-            }
-        }
-        std::cout << std::endl;
-
-        memcpy(FaceDataBase, gallaryData, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float));
-
-        //int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
-        //test
-        // for(int i=0; i<1024; ++i){
-        //     std::cout << ArcFace::FaceDataBase[i] << "    ";
+        // //test
+        // for(int i=0; i<2048; ++i){
+            
+        //     if(i%512 == 0)
+        //     {
+        //         std::cout << std::endl;
+        //     }
+        //     std::cout << gallaryData[i] << " ";
         // }
         // std::cout << std::endl;
 
+        memcpy(FaceDataBase, gallaryData, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float));
+
+        // //test
+        // for(int i=0; i<2048; ++i){
+            
+        //     if(i%512 == 0)
+        //     {
+        //         std::cout << std::endl;
+        //     }
+        //     std::cout << FaceDataBase[i] << " ";
+        // }
+        // std::cout << std::endl;
+
+        // CHECK(cudaMalloc((void **) &d_gallary_buffer, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float)));
+        // CHECK(cudaMemcpy(d_gallary_buffer, FaceDataBase, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float), cudaMemcpyHostToDevice));
         InitFaceGallaryToDevice(FaceDataBase);
+
+        // float *t_gallary_buffer = (float *) malloc(GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float));   // 保存输出结果的2000个相似度，但并不需要返回，所以最后要释放
+        // cudaMemcpy(t_gallary_buffer, d_gallary_buffer, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float), cudaMemcpyDeviceToHost);
+
+        // //test
+        // std::cout << "check if data is load to cuda device. " << std::endl;
+        // for(int i=0; i<2048; ++i){
+            
+        //     if(i%512 == 0)
+        //     {
+        //         std::cout << std::endl;
+        //     }
+        //     std::cout << t_gallary_buffer[i] << " ";
+        // }
+        
+
+        //   //test
+        // std::cout << "second time check FaceDataBase:" << std::endl;
+        // for(int i=0; i<2048; ++i){
+            
+        //     if(i%512 == 0)
+        //     {
+        //         std::cout << std::endl;
+        //     }
+        //     std::cout << FaceDataBase[i] << " ";
+        // }
+
+        // std::cout <<  "address:  " << FaceDataBase << std::endl;
+        // std::cout << "d_gallary_buffer address:" << d_gallary_buffer << std::endl;
+        // // std::cout << std::endl << "人脸Gallary数据已经上传到GPU上" << std::endl;
     }
 
 #pragma region 层结构
@@ -473,7 +511,7 @@ namespace ArcFace
         //
         // // 测试buffers[outputIndex]里面的数据
         // std::cout << "buffers[outputIndex]:  "<< std::endl;
-        // tmp = (float*)buffers[outputIndex];
+        // float * tmp = (float*)buffers[outputIndex];
         // for(int i=0; i<lenth; ++i){
         // std::cout << *(tmp++) << " ";
         // }

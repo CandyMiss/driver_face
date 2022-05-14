@@ -27,28 +27,47 @@ __global__ void vectorMulti(const float *A, const float *B, float *C, int numEle
     }
 }
 
-// 本函数仅执行一次！人脸Gallary常驻显存
+//本函数仅执行一次！人脸Gallary常驻显存
 extern "C" void InitFaceGallaryToDevice(float *h_gallary_buffer)
 {
+    // // std::cout << "InitFaceGallaryToDevice address: " <<h_gallary_buffer <<  std::endl;
+    // std::cout << "(float *h_gallary_buffer)" << std::endl;
+    // for(int j=0; j<5; j++)
+    // {
+    //     for (int i = 0; i < 512; i++)
+    //     {
+    //         std::cout << *(h_gallary_buffer+i)<< " ";
+    //     }
+    //     std:: cout << std::endl;
+    // }
     cudaMalloc((void **) &d_gallary_buffer, FACE_NUM * FACE_FEATURE_SIZE * sizeof(float));
     cudaMemcpy(d_gallary_buffer, h_gallary_buffer, FACE_NUM * FACE_FEATURE_SIZE * sizeof(float), cudaMemcpyHostToDevice);
-
-    for(int j=0; j<30; j++)
-    {
-        for (int i = 0; i < 512; i++)
-        {
-            std::cout << h_gallary_buffer[i] << " ";
-        }
-        std:: cout << std::endl;
-    }
-
+    // //test
+    // float *t_similar_result = (float *) malloc(FACE_NUM* FACE_FEATURE_SIZE  * sizeof(float));;
+    // cudaMemcpy(t_similar_result, d_gallary_buffer, FACE_NUM * FACE_FEATURE_SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+    // std::cout << "cudaMemcpyDeviceToHost  "<< std::endl;
+    // for(int j=0; j<5; j++)
+    // {
+    //     for (int i = 0; i < 512; i++)
+    //     {
+    //         std::cout << *(t_similar_result+i)<< " ";
+    //     }
+    //     std:: cout << std::endl;
+    // }
     std::cout << std::endl << "人脸Gallary数据已经上传到GPU上" << std::endl;
 }
 
 extern "C" int GetSimilarityIndex(float *d_face_buffers)    // 直接处理cuda端数据，其内存由调用者申请和释放
 {
-    float *h_similar_result = (float *) malloc(FACE_NUM * sizeof(float));   // 保存输出结果的2000个相似度，但并不需要返回，所以最后要释放
+    // std::cout << "d_face_buffers[BATCH_SIZE * FACE_FEATURE_DIMENSION]:  "<< std::endl;
+    //     float * tmp = d_face_buffers;
+    //     for(int i=0; i<512; i++){
+    //     std::cout << (float)*(tmp+i) << " ";
+    //     }
 
+    //     std::cout << std::endl;
+    float *h_similar_result = (float *) malloc(FACE_NUM * sizeof(float));   // 保存输出结果的2000个相似度，但并不需要返回，所以最后要释放
+    memset(h_similar_result, 0, sizeof(FACE_NUM * sizeof(float)));
     //初始化cuda端数组
     float *d_similar_result = NULL;
     cudaMalloc((void **) &d_similar_result, FACE_NUM * sizeof(float)); // CUDA 端 2000 个相似度输出
@@ -56,12 +75,26 @@ extern "C" int GetSimilarityIndex(float *d_face_buffers)    // 直接处理cuda�
     int threadsPerBlock = FACE_FEATURE_SIZE;
     int blocksPerGrid = (FACE_NUM + threadsPerBlock - 1) / threadsPerBlock;
 
+    //test
+    // float *t_gallary_buffer= (float *) malloc(FACE_NUM* FACE_FEATURE_SIZE  * sizeof(float));;
+    // cudaMemcpy(t_gallary_buffer, d_gallary_buffer, FACE_NUM * FACE_FEATURE_SIZE * sizeof(float), cudaMemcpyDeviceToHost);
+    // std::cout << "cudaMemcpyDeviceToHost  "<< std::endl;
+    // for(int j=0; j<5; j++)
+    // {
+    //     for (int i = 0; i < 512; i++)
+    //     {
+    //         std::cout << *(t_gallary_buffer+i)<< " ";
+    //     }
+    //     std:: cout << std::endl;
+    // }
+
     vectorMulti<<<blocksPerGrid, threadsPerBlock>>>(d_gallary_buffer, d_face_buffers, d_similar_result, FACE_NUM);
 
     cudaMemcpy(h_similar_result, d_similar_result, FACE_NUM * sizeof(float), cudaMemcpyDeviceToHost);
     //std::cout << "h_similar_result[0]:  " << h_similar_result[0] << std::endl;
 
     int h_id = 0;                                                    //返回0表示没找到
+    h_similar_result[0] = 0;
     for (unsigned int i = 1; i < FACE_NUM; i++)                     //从下标1开始找
     {
         //std::cout << "[i]:  " << i<< "h_similar_result[i]:  " << (float)h_similar_result[i] << std::endl;
@@ -101,6 +134,7 @@ extern "C" int GetSimilarityIndex(float *d_face_buffers)    // 直接处理cuda�
     cudaFree(d_similar_result);
     free(h_similar_result);
     // std::cout << "h_id: " << h_id << "  h_similar_result[h_id]: "<< h_similar_result[h_id] << std::endl;
+
     return h_id;
 }
 
