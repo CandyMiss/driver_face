@@ -32,12 +32,23 @@ namespace ArcFace
         else{
             std::cout<< "Face data file opened successfully." << std::endl;
         }
+
         inFStream.read((char *) &gallaryData, sizeof(gallaryData));
         inFStream.close();
+        int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
+        //test
+        for(int i=0; i<tmplenth; ++i){
+            std::cout << gallaryData[i] << "    ";
+            if(i%512 == 0)
+            {
+                std::cout << std::endl;
+            }
+        }
+        std::cout << std::endl;
 
         memcpy(FaceDataBase, gallaryData, GALLARY_NUM * FACE_FEATURE_DIMENSION * sizeof(float));
 
-        int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
+        //int tmplenth = ArcFace::GALLARY_NUM * ArcFace::FACE_FEATURE_DIMENSION;
         //test
         // for(int i=0; i<1024; ++i){
         //     std::cout << ArcFace::FaceDataBase[i] << "    ";

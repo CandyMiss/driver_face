@@ -33,10 +33,15 @@ extern "C" void InitFaceGallaryToDevice(float *h_gallary_buffer)
     cudaMalloc((void **) &d_gallary_buffer, FACE_NUM * FACE_FEATURE_SIZE * sizeof(float));
     cudaMemcpy(d_gallary_buffer, h_gallary_buffer, FACE_NUM * FACE_FEATURE_SIZE * sizeof(float), cudaMemcpyHostToDevice);
 
-    for (int i = 0; i < 10; i++)
+    for(int j=0; j<30; j++)
     {
-        std::cout << h_gallary_buffer[i] << " ";
+        for (int i = 0; i < 512; i++)
+        {
+            std::cout << h_gallary_buffer[i] << " ";
+        }
+        std:: cout << std::endl;
     }
+
     std::cout << std::endl << "人脸Gallary数据已经上传到GPU上" << std::endl;
 }
 
