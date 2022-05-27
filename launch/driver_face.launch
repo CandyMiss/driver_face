@@ -1,5 +1,6 @@
 <launch>
-    <node name="pub_cam_node" pkg="driver_face" type="Decoder" output="screen"/>
+  <node name="pub_cam_node" pkg="driver_face" type="Decoder" output="screen"/>
   <node name="image_analyze_node" pkg="driver_face" type="Analyzer" output="screen"/>
-  <node name="image_render_node" pkg="driver_face" type="Renderer" output="screen"/>
+  <node name="image_identify_node" pkg="driver_face" type="Identifier" output="screen"/>
+  <node name="get_driverid_node" pkg="driver_face" type="DriverID" output="screen"/>
 </launch>
