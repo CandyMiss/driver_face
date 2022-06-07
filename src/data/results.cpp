@@ -34,15 +34,18 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
         FaceCaptured = false;
         switch ((int) (iter->class_id))
         {
-            // case ClassID::HEAD:
-            //     if (iter->bbox[2] * iter->bbox[3] < areaHead)
-            //     {
-            //         continue;
-            //     }
-            //     HeadCaptured = true;
-            //     cout << "抓到头了！" << endl;
-            //     memcpy(RectHead, iter->bbox, Yolo::LOCATIONS * sizeof(float));
-            //     break;
+            case ClassID::HEAD:
+            {
+                if (iter->bbox[2] * iter->bbox[3] < areaHead)
+                {
+                    continue;
+                }
+                HeadCaptured = true;
+                cout << "抓到头了！" << endl;
+                memcpy(RectHead, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+                // break;                
+            }
+
 
 #pragma region 看脸
             case ClassID::FACE:
@@ -65,7 +68,9 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
 
             default:
             {
+                //other status
                 FaceCaptured = false;
+                HeadCaptured = false;
                 break;
             }
 

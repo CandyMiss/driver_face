@@ -13,7 +13,7 @@ using std::map;
     
 const std::string suffix = ".jpg";
 const std::string separator = "_";
-std::string map_path = "//home/nvidia/ros_vision/src/driver_face/src/res/";
+std::string map_path = "/home/nvidia/ros_vision/src/driver_face/src/res/";
 
 map<int, std::string> id_name_map;
 void imageCallback(const driver_face::DriverIdMsg::ConstPtr& msg)    
@@ -47,6 +47,7 @@ int main(int argc, char **argv)
     // cv::startWindowThread();    
     //image_transport::ImageTransport it(nh);    
     ros::Subscriber sub = nh.subscribe("/camera_csi0/driver_id", 1, imageCallback);    
+    ros::Publisher pub = nh.advertise(<driver_face::DriverIdMsg>("/camera_csi0/driver_name", 1);
     
     //初始化映射表
     int id;
