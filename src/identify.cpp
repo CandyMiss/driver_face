@@ -35,7 +35,7 @@ static float prob[PFLD::OUTPUT_SIZE];
 static unsigned int DoFaceIDTimes = 0;
 static int faceId = 0;         //tmp人脸id
 
-std::string capture_path = "/home/nvidia/wdq/picture/capture/";   //存储拍摄的人脸照片
+std::string capture_path = "/home/nvidia/Pictures/capture/";   //存储拍摄的人脸照片
 
 float tmpFaceFeature[ArcFace::FACE_FEATURE_DIMENSION]{0.0};//512维特征向量
 //cv::Mat faceQueue;
