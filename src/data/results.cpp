@@ -43,7 +43,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
                 HeadCaptured = true;
                 cout << "抓到头了！" << endl;
                 memcpy(RectHead, iter->bbox, Yolo::LOCATIONS * sizeof(float));
-                // break;                
+                break;                
             }
 
 
