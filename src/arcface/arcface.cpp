@@ -10,7 +10,7 @@ namespace ArcFace
     const int INPUT_W = 112;
     const int BATCH_SIZE = 1;  // currently, only support BATCH=1
 
-    const std::string face_data_filename = "/home/nvidia/wdq/ros_vision/src/driver_face/src/res/face.data";
+    const std::string face_data_filename = "/home/nvidia/ros_vision/src/driver_face/src/res/face.data";
     const char *INPUT_BLOB_NAME = "data";
     const char *OUTPUT_BLOB_NAME = "prob";
 
@@ -361,7 +361,7 @@ namespace ArcFace
         char *trtModelStream{nullptr};
         size_t size{0};
 
-        std::ifstream file("/home/nvidia/wdq/ArcFaceGenEngine/build/arcface.engine", std::ios::binary);
+        std::ifstream file("/home/nvidia/ArcFaceGenEngine/build/arcface.engine", std::ios::binary);
         if(!file.is_open()){
             std::cout << "Failed to open arcface.engine." << std::endl;
         }

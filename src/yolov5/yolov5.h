@@ -21,7 +21,7 @@
 
 namespace YoloV5
 {
-    const std::string ENGIN_PATH = "/home/nvidia/wdq/YoloGenEngine/build/";
+    const std::string ENGIN_PATH = "/home/nvidia/YoloGenEngine/build/";
     
     REGISTER_TENSORRT_PLUGIN(YoloPluginCreator);
 

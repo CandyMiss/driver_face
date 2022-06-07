@@ -184,7 +184,7 @@ void DriverResult::analyzeFaceState(float *pointsFace)
 //    IsFaceValid = PFLD::FaceValidation(pointsFace);
     cout << "脸部有效记录(实时计算)：" << IsFaceValid << endl;
 
-    if (FaceCaptured)   // 当前只分析正脸
+    if (IsFaceValid)//(FaceCaptured)   // 当前只分析正脸
     {
         FaceAngleHoriz = PFLD::FaceHorizAngle(pointsFace);
         FaceAngelVirt = PFLD::FaceVirtAngle(pointsFace);

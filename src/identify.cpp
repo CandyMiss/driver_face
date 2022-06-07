@@ -82,9 +82,17 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             cout << "Face-----------------------------------------ID: " << faceId << endl << endl;
             matchMaker.addFaceId(faceId);
             // //得到人脸关键点
-            // PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
-            // driverResult.DealFaceResult(prob);
-            // cout << "prob" << (*prob)<< endl;
+            PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
+            driverResult.DealFaceResult(prob);
+            cout << "prob" << (*prob)<< endl;
+            if(driverResult.EyeOpen > 0.3)
+                cout<<"Eye Open!!!"<<endl;
+            else
+                cout<<"Eye Cloessssssse!"<<endl;
+            if(driverResult.MouthOpen > 0.1)
+                cout<<"Mouth Open"<<endl;
+            else    
+                cout<<"Mouth Closessssss!"<<endl;
         }
         else{
             //没找到可识别的人脸目标，或者追踪失败
@@ -128,9 +136,10 @@ int main(int argc, char **argv)
     cudaSetDevice(DEVICE);
     ArcFace::InitArcFaceEngine();
     cout << "ArcFace 引擎序列化完成"  << std::endl;
-    // PFLD::InitPFLDEngine();
-    // cout << "PFLD 引擎序列化完成" <<  std::endl;
+    PFLD::InitPFLDEngine();
+    cout << "PFLD 引擎序列化完成" <<  std::endl;
      // 初始化所有人脸数据
+
     ArcFace::ReadFaceDataToGPU();
     cout << "初始化人脸数据完成" <<  std::endl;   
 
@@ -144,7 +153,7 @@ int main(int argc, char **argv)
 
     cv::destroyWindow("view2");    //窗口
     //YoloV5::ReleaseYoloV5Engine();
-    // PFLD::ReleasePFLDEngine();
+    PFLD::ReleasePFLDEngine();
     ArcFace::ReleasePFLDEngine();
     return 0;
 

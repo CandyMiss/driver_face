@@ -362,7 +362,7 @@ namespace PFLD
         char *trtModelStream{nullptr};
         size_t size{0};
 
-        std::ifstream file("/home/nvidia/wdq/PFLDGenEngin/build/pfld.engine", std::ios::binary);
+        std::ifstream file("/home/nvidia/PFLDGenEngin/build/pfld.engine", std::ios::binary);
         if (file.good())
         {
             file.seekg(0, file.end);
