@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <driver_face/ResultMsg.h>
 #include <driver_face/FaceRecMsg.h>
+#include <driver_face/TargetRes.h>
 
 #include "yolov5/yolov5.h"
 #include "data/results.h"
@@ -17,6 +18,7 @@ const int CAMERA_ID_Face = 0;
 ros::Time CurAnalyzeStamp;
 ros::Publisher StampInfoPub;
 ros::Publisher FaceInfoPub;
+ros::Publisher TargetInfoPub;
 
 DriverResult CurFaceResult;
 
@@ -32,6 +34,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         cv::Mat frame = cv_bridge::toCvShare(msg, "bgr8")->image;       //摄像头接收到的 图像
         driver_face::ResultMsg result_msg;
         driver_face::FaceRecMsg face_msg;
+        driver_face::TargetRes target_msg; //other target topic
 		result_msg.LatestResultStamp = CurAnalyzeStamp;
         CurAnalyzeStamp = stamp;
 		result_msg.CurAnalyzeStamp  = stamp;
@@ -100,10 +103,35 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         {
             cout << "位置：" << rect.x << ", " << rect.y << endl;
         }
-
+        //init other target msg
+        target_msg.isHeadNod = false;
+        target_msg.isPhoneAround = false;
+        target_msg.isGazeLeaveRail = false;
+        target_msg.isEyeShield = false;
+        target_msg.isMouthShield = false;
+        target_msg.isFoundCig = false;
+        //generate other target from yolo result
+        for (auto it : result)
+        {
+            if ((int) (it.class_id) == 3) {
+                target_msg.isGazeLeaveRail = true;
+                target_msg.isHeadNod = true;
+            }
+            else if ((int) (it.class_id) == 7)
+                target_msg.isPhoneAround = true;
+            else if ((int) (it.class_id) == 1 || (int) (it.class_id) == 2 || (int) (it.class_id) == 3 || (int) (it.class_id) == 4)
+                target_msg.isGazeLeaveRail = true;
+            else if ((int) (it.class_id) == 5)
+                target_msg.isEyeShield = true;
+            else if ((int) (it.class_id) == 6)
+                target_msg.isMouthShield = true;
+            else if ((int) (it.class_id) == 8)
+                target_msg.isFoundCig = true;
+        }
         //在消息回调函数里面发布另一个话题的消息
         StampInfoPub.publish(result_msg);
         FaceInfoPub.publish(face_msg);
+        TargetInfoPub.publish(target_msg);
 
     }
     catch (cv_bridge::Exception& e)
@@ -125,6 +153,7 @@ int main(int argc, char **argv)
     CurAnalyzeStamp = ros::Time::now();
     StampInfoPub = node_analyze.advertise<driver_face::ResultMsg>("/camera_csi0/cur_result", 1);
     FaceInfoPub = node_analyze.advertise<driver_face::FaceRecMsg>("/camera_csi0/face_result", 1);
+    TargetInfoPub = node_analyze.advertise<driver_face::TargetRes>("/camera_csi0/target_result", 1);
 
     image_transport::ImageTransport it(node_analyze);
     image_transport::Subscriber sub = it.subscribe("/camera_csi0/frames", 1, imageCallback);

@@ -32,9 +32,10 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
     for (vector<Detection>::iterator iter = driverResult.begin(); iter != driverResult.end(); ++iter)
     {
         FaceCaptured = false;
+        cout<<"detect success :"<<iter->class_id<<" attention!!!!!!!"<<endl;
         switch ((int) (iter->class_id))
         {
-            case ClassID::HEAD:
+            case 20://ClassID::HEAD:
             {
                 if (iter->bbox[2] * iter->bbox[3] < areaHead)
                 {
@@ -48,7 +49,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
 
 
 #pragma region 看脸
-            case ClassID::FACE:
+            case 0://ClassID::FACE:
             {
                 // 标明捕捉到脸，后续可执行脸部操作
                 FaceNum ++;

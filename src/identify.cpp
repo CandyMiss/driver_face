@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <driver_face/FaceRecMsg.h>
 #include <driver_face/DriverIdMsg.h>
+#include <driver_face/MouthAndEyeRes.h>
 #include "font/CvxText.h"
 #include <iostream>
 
@@ -27,9 +28,11 @@ DriverIDResult *CurDriverIDResult;
 Results *AllResult;
 DriverResult driverResult;
 driver_face::DriverIdMsg driver_msg;
+driver_face::MouthAndEyeRes MouthAndEye_msg;
 FaceIdMatchMaker matchMaker;
 
 ros::Publisher DriverInfoPub;
+ros::Publisher MouthAndEyeInfoPub;
 
 static float prob[PFLD::OUTPUT_SIZE];
 static unsigned int DoFaceIDTimes = 0;
@@ -85,14 +88,11 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             PFLD::AnalyzeOneFace(faceMat, prob);   // 正式使用时，改为faceMat//使用前要初始化引擎
             driverResult.DealFaceResult(prob);
             cout << "prob" << (*prob)<< endl;
-            if(driverResult.EyeOpen > 0.3)
-                cout<<"Eye Open!!!"<<endl;
-            else
-                cout<<"Eye Cloessssssse!"<<endl;
-            if(driverResult.MouthOpen > 0.1)
-                cout<<"Mouth Open"<<endl;
-            else    
-                cout<<"Mouth Closessssss!"<<endl;
+            //init mouth and eye state
+            MouthAndEye_msg.MouthOpen = -1.0;
+            MouthAndEye_msg.EyeOpen = -1.0;
+            MouthAndEye_msg.MouthOpen = driverResult.MouthOpen;
+            MouthAndEye_msg.EyeOpen = driverResult.EyeOpen;
         }
         else{
             //没找到可识别的人脸目标，或者追踪失败
@@ -103,6 +103,10 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             // driver_msg.driverID = faceId;
             matchMaker.addFaceId(0);
         }
+        //publish mouth and eye state
+        MouthAndEyeInfoPub.publish(MouthAndEye_msg);
+        MouthAndEye_msg.MouthOpen = -1.0;
+        MouthAndEye_msg.EyeOpen = -1.0;
 
         bool getSuccess = matchMaker.detectFaceId(faceId);
         if(getSuccess)
@@ -148,7 +152,7 @@ int main(int argc, char **argv)
     cv::namedWindow("view2",cv::WINDOW_NORMAL); 
     ros::Subscriber sub = node_identify.subscribe("/camera_csi0/face_result", 1, imageCallback);    
     DriverInfoPub = node_identify.advertise<driver_face::DriverIdMsg>("/camera_csi0/driver_id", 1);
-
+    MouthAndEyeInfoPub = node_identify.advertise<driver_face::MouthAndEyeRes>("/camera_csi0/mouth_eye_state", 1);
     ros::spin();   
 
     cv::destroyWindow("view2");    //窗口

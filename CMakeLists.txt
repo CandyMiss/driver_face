@@ -122,6 +122,8 @@ add_message_files(
   ResultMsg.msg
   FaceRecMsg.msg
   DriverIdMsg.msg
+  MouthAndEyeRes.msg
+  TargetRes.msg
  )
 generate_messages(
   DEPENDENCIES
