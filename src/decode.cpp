@@ -24,13 +24,14 @@ std::string gstreamer_pipeline (int capture_width, int capture_height, int displ
 //             ", height=(int)" + std::to_string(display_height) + 
 //             ", format=(string)BGRx ! videoconvert ! appsink";
 // }
+//////////
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "pub_cam_node");  //argc:remapping 参数的个数，argv参数列表，运行时节点名
     ros::NodeHandle n;
 
-//tx2
+////////tx2
     int capture_width = 1280 ;
     int capture_height = 720 ;
     int display_width = 1280 ;
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
                            display_height,
                            framerate,
                            flip_method);
-    
+ ////////   
 
 
     //1 捕获视频
