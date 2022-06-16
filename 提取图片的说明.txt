@@ -1,0 +1,11 @@
+图片以消息的形式发送出来。在analyze.cpp文件中，发送含有图片的消息的话题，名称为：/camera_csi0/face_result
+消息名称为FaceRecMsg，消息中包含的图片为FaceImage，格式为sensor_msgs/Image
+
+接受到图片消息的代码，参考identify.cpp中，在imageCallback回调函数中，
+ boost::shared_ptr<void const> tracked_object;    //共享指针,原来初始化了：boost::shared_ptr<void const> tracked_object(&(msg->FaceImage))
+ cv::Mat faceMat = cv_bridge::toCvShare(msg->FaceImage, tracked_object,"bgr8")->image;
+此时，图片被转换为 cv::Mat格式
+
+将 cv::Mat格式的图片进行保存：
+cv::imwrite(capture_path + time+"-1.jpg", faceMat);
+参数1为表示路径和文件名的string。
