@@ -25,7 +25,7 @@ driver_face::ResultMsg reslut_msg;
 
 
 #pragma region 渲染中文字体
-CvxText text("./MSYaHei.ttf"); //指定字体 ///home/nvidia/wdq/ros_vision/devel/res/MSYaHei.ttf
+CvxText text("/home/nvidia/ros_vision/devel/res/MSYaHei.ttf"); //指定字体 ///home/nvidia/ros_vision/devel/res/MSYaHei.ttf    ./MSYaHei.ttf
 cv::Scalar size1{40, 0.5, 0.1, 0}; // { 字体大小/空白比例/间隔比例/旋转角度 }
 static int ToWchar(char *&src, wchar_t *&dest, const char *locale = "zh_CN.utf8")
 {

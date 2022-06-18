@@ -11,6 +11,7 @@ void FaceIdMatchMaker::addFaceId(int id)
     }
 }
 
+//a round:10 times
 bool FaceIdMatchMaker::detectFaceId(int &id)
 {
     detectTimes++;

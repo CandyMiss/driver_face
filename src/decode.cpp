@@ -5,52 +5,36 @@
 #include <opencv2/opencv.hpp>
 
 using namespace std;
-// //设置gstreamer管道参数tx2s
-// std::string gstreamer_pipeline (int capture_width, int capture_height, int display_width, int display_height, int framerate, int flip_method)
-// {
-//     return "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(capture_width) + ", height=(int)" +
-//            std::to_string(capture_height) + ", format=(string)NV12, framerate=(fraction)" + std::to_string(framerate) +
-//            "/1 ! nvvidconv flip-method=" + std::to_string(flip_method) + " ! video/x-raw, width=(int)" + std::to_string(display_width) + ", height=(int)" +
-//            std::to_string(display_height) + ", format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
-// }
 
-// //hk
-std::string gstreamer_pipeline(std::string uri, int latency, int display_width, int display_height) 
+/////tx2
+//设置gstreamer管道参数tx2s
+std::string gstreamer_pipeline (int capture_width, int capture_height, int display_width, int display_height, int framerate, int flip_method)
 {
-    return "rtspsrc location=" + uri +
-            " latency=" + std::to_string(latency) +
-            " ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, " + 
-            "width=(int)" + std::to_string(display_width) + 
-            ", height=(int)" + std::to_string(display_height) + 
-            ", format=(string)BGRx ! videoconvert ! appsink";
+    return "nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(capture_width) + ", height=(int)" +
+           std::to_string(capture_height) + ", format=(string)NV12, framerate=(fraction)" + std::to_string(framerate) +
+           "/1 ! nvvidconv flip-method=" + std::to_string(flip_method) + " ! video/x-raw, width=(int)" + std::to_string(display_width) + ", height=(int)" +
+           std::to_string(display_height) + ", format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
 }
-////////
+/////
+
+// // //hk
+// std::string gstreamer_pipeline(std::string uri, int latency, int display_width, int display_height) 
+// {
+//     return "rtspsrc location=" + uri +
+//             " latency=" + std::to_string(latency) +
+//             " ! rtph264depay ! h264parse ! omxh264dec ! nvvidconv ! video/x-raw, " + 
+//             "width=(int)" + std::to_string(display_width) + 
+//             ", height=(int)" + std::to_string(display_height) + 
+//             ", format=(string)BGRx ! videoconvert ! appsink";
+// }
+// ////////
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "pub_cam_node");  //argc:remapping 参数的个数，argv参数列表，运行时节点名
     ros::NodeHandle n;
 
-// ////////tx2
-//     int capture_width = 1280 ;
-//     int capture_height = 720 ;
-//     int display_width = 1280 ;
-//     int display_height = 720 ;
-//     int framerate = 10 ;
-//     int flip_method =2 ;
-
-//     std::string pipeline = gstreamer_pipeline(capture_width,
-//                            capture_height,
-//                            display_width,
-//                            display_height,
-//                            framerate,
-//                            flip_method);
-//  ////////   
-
-
-//hk
-    std::string uri = "rtsp://admin:12345@10.14.1.205:554/Streaming/Channels/101";
-    int latency = 0 ;
+////////tx2
     int capture_width = 1280 ;
     int capture_height = 720 ;
     int display_width = 1280 ;
@@ -58,12 +42,31 @@ int main(int argc, char **argv)
     int framerate = 10 ;
     int flip_method =2 ;
 
+    std::string pipeline = gstreamer_pipeline(capture_width,
+                           capture_height,
+                           display_width,
+                           display_height,
+                           framerate,
+                           flip_method);
+ ////////   
+
+
+// //hk
+//     std::string uri = "rtsp://admin:12345@10.14.1.205:554/Streaming/Channels/101";
+//     int latency = 0 ;
+//     int capture_width = 1280 ;
+//     int capture_height = 720 ;
+//     int display_width = 1280 ;
+//     int display_height = 720 ;
+//     int framerate = 10 ;
+//     int flip_method =2 ;
+
     
-    std::string pipeline = gstreamer_pipeline(uri,
-                    latency, 
-                    display_width,
-                    display_height);
-///
+//     std::string pipeline = gstreamer_pipeline(uri,
+//                     latency, 
+//                     display_width,
+//                     display_height);
+// ///
 
 
     //1 捕获视频

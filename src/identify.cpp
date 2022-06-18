@@ -118,11 +118,16 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             }
             driver_msg.driverID = faceId;
             DriverInfoPub.publish(driver_msg);
-            //存三张？
-            string time = std::to_string(ros::Time::now().toSec());
-            cv::imwrite(capture_path + time+"-1.jpg", faceMat);   //保存图片
-            cv::imwrite(capture_path + time+"-2.jpg", faceMat);   //保存图片
-            cv::imwrite(capture_path + time+"-3.jpg", faceMat);   //保存图片
+            if(msg->hasFace == true && msg->isMultiface==false)
+            {
+                //存三张？
+                //string time = std::to_string(ros::Time::now().toSec());
+                string idstr = std::to_string(faceId);
+                cv::imwrite(capture_path + idstr+"-1.jpg", faceMat);   //保存图片
+                cv::imwrite(capture_path + idstr+"-2.jpg", faceMat);   //保存图片
+                cv::imwrite(capture_path + idstr+"-3.jpg", faceMat);   //保存图片
+            }
+
         }
     }
     catch (cv_bridge::Exception& e)
