@@ -5,7 +5,7 @@
 #include <driver_face/FaceRecMsg.h>
 #include <driver_face/DriverIdMsg.h>
 #include <driver_face/MouthAndEyeRes.h>
-#include "font/CvxText.h"
+// #include "font/CvxText.h"
 #include <iostream>
 
 #include <queue>
@@ -120,12 +120,22 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
             DriverInfoPub.publish(driver_msg);
             if(msg->hasFace == true && msg->isMultiface==false)
             {
-                //存三张？
-                //string time = std::to_string(ros::Time::now().toSec());
+                string time = std::to_string(ros::Time::now().toSec());
                 string idstr = std::to_string(faceId);
-                cv::imwrite(capture_path + idstr+"-1.jpg", faceMat);   //保存图片
-                cv::imwrite(capture_path + idstr+"-2.jpg", faceMat);   //保存图片
-                cv::imwrite(capture_path + idstr+"-3.jpg", faceMat);   //保存图片
+                if(faceId == 0)
+                {
+                    cv::imwrite(capture_path + idstr+ time+"-1.jpg", faceMat);   //保存图片
+                    cv::imwrite(capture_path + idstr+ time+"-2.jpg", faceMat);   //保存图片
+                    cv::imwrite(capture_path + idstr+ time+"-3.jpg", faceMat);   //保存图片  
+                }
+                else
+                {
+                    cv::imwrite(capture_path + idstr+"-1.jpg", faceMat);   //保存图片
+                    cv::imwrite(capture_path + idstr+"-2.jpg", faceMat);   //保存图片
+                    cv::imwrite(capture_path + idstr+"-3.jpg", faceMat);   //保存图片  
+                }
+
+
             }
 
         }
