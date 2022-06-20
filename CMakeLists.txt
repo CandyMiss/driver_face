@@ -96,7 +96,7 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     message("embed_platform on")
     include_directories(/usr/local/cuda/targets/aarch64-linux/include)
     link_directories(/usr/local/cuda/targets/aarch64-linux/lib)
-#    link_directories(/usr/lib/aarch64-linux-gnu)    # 字体渲染库，libfreetype的位置
+    link_directories(/usr/lib/aarch64-linux-gnu)    # 字体渲染库，libfreetype的位置
     include_directories(/usr/include/gstreamer-1.0)
     include_directories(/usr/lib/aarch64-linux-gnu/glib-2.0/include)
 else()
@@ -220,15 +220,17 @@ add_executable(Analyzer src/analyze.cpp
         src/data/results.h src/data/results.cpp
         src/yolov5/common.h src/yolov5/common.cpp
         src/yolov5/yololayer.h src/yolov5/yololayer.cu
-        src/yolov5/yolov5.h src/yolov5/yolov5.cpp)
+        src/yolov5/yolov5.h src/yolov5/yolov5.cpp
+        src/font/CvxText.cpp src/font/CvxText.h)
 
 target_link_libraries(Analyzer ${catkin_LIBRARIES})
 add_dependencies(Analyzer ${PROJECT_NAME}_generate_messages_cpp)
 
-add_executable(Renderer src/render.cpp)
-#        src/font/CvxText.cpp src/font/CvxText.h)
+add_executable(Renderer src/render.cpp
+        src/font/CvxText.cpp src/font/CvxText.h)
 target_link_libraries(Renderer ${catkin_LIBRARIES})
 add_dependencies(Renderer ${PROJECT_NAME}_generate_messages_cpp)
+
 
 add_executable(Identifier src/identify.cpp
         src/utils/cfg_params.h src/utils/cfg_params.cpp
@@ -280,7 +282,8 @@ target_link_libraries(Identifier sqlite3)
 
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/libxml2)
-#Starget_link_libraries(Renderer freetype)
+target_link_libraries(Renderer freetype)
+target_link_libraries(Analyzer freetype)
 target_link_libraries(Analyzer xml2)
 target_link_libraries(Identifier xml2)
 

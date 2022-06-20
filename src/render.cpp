@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <driver_face/ResultMsg.h>
 #include <driver_face/DriverIdMsg.h>
-// #include "font/CvxText.h"
+#include "font/CvxText.h"
 
 #include <queue>
 #include <map>
@@ -23,11 +23,11 @@ const double FONT_SCALE = 2.5;
 ros::Time StartStamp;
 bool GotResult = false;
 driver_face::ResultMsg reslut_msg;
-std::string driveridstr = "not driver";
+std::string driveridstr = "不是司机！";
 
 #pragma region 渲染中文字体
-// CvxText text("/home/nvidia/ros_vision/devel/res/MSYaHei.ttf"); //指定字体 ///home/nvidia/ros_vision/devel/res/MSYaHei.ttf    ./MSYaHei.ttf
-// cv::Scalar size1{40, 0.5, 0.1, 0}; // { 字体大小/空白比例/间隔比例/旋转角度 }
+CvxText text("/home/nvidia/ros_vision/src/driver_face/src/res/MSYaHei.ttf"); //指定字体 ///home/nvidia/ros_vision/devel/res/MSYaHei.ttf    ./MSYaHei.ttf
+cv::Scalar size1{40, 0.5, 0.1, 0}; // { 字体大小/空白比例/间隔比例/旋转角度 }
 static int ToWchar(char *&src, wchar_t *&dest, const char *locale = "zh_CN.utf8")
 {
     if (src == NULL)
@@ -66,15 +66,15 @@ static int ToWchar(char *&src, wchar_t *&dest, const char *locale = "zh_CN.utf8"
 
 void drawChineseChars(cv::Mat &frame, char *str, int pos_x, int pos_y, cv::Scalar color)
 {
-    // wchar_t *w_str;
-    // ToWchar(str, w_str);
-    // text.putText(frame, w_str, cv::Point(pos_x, pos_y), color);
-    cv::putText(frame, str, cv::Point(pos_x, pos_y), cv::FONT_HERSHEY_COMPLEX, 2, color, 2, 8, 0);
+    wchar_t *w_str;
+    ToWchar(str, w_str);
+    text.putText(frame, w_str, cv::Point(pos_x, pos_y), color);
+    // cv::putText(frame, str, cv::Point(pos_x, pos_y), cv::FONT_HERSHEY_COMPLEX, 2, color, 2, 8, 0);
 }
 
 void drawIniting(cv::Mat& canvas)
 {
-    char *str = (char *)"init...";
+    char *str = (char *)"初始化...";
     std::string testStr(str);
     int font_face = cv::FONT_HERSHEY_COMPLEX;
     int baseline;
@@ -209,10 +209,10 @@ void imageCallback(const driver_face::DriverIdMsg::ConstPtr& msg)
         // 这里只需要空指针，不初始化，不加括号
         boost::shared_ptr<void const> tracked_object;    //共享指针,原来初始化了：boost::shared_ptr<void const> tracked_object(&(msg->FaceImage))
         if(msg->isDriver==true){
-            driveridstr = "driver id:" + std::to_string(msg->driverID);          
+            driveridstr = "司机id:" + std::to_string(msg->driverID);          
         }
         else{
-            driveridstr = "not driver";
+            driveridstr = "不是司机！";
         }
         std::cout << driveridstr << std::endl;
         //cv::imshow("view2", canvas);    
@@ -234,11 +234,11 @@ int main(int argc, char **argv)
     cv::Scalar fontSize;
     bool fontUnderline;
     float fontDiaphaneity;
-    // text.getFont(&fontType, &fontSize, &fontUnderline, &fontDiaphaneity);
-    // text.setFont(&fontType, &size1, &fontUnderline, &fontDiaphaneity);
+    text.getFont(&fontType, &fontSize, &fontUnderline, &fontDiaphaneity);
+    text.setFont(&fontType, &size1, &fontUnderline, &fontDiaphaneity);
 
     StartStamp = ros::Time::now();
-     cv::namedWindow("view");
+    cv::namedWindow("view");
     // cv::namedWindow("view",  cv::WINDOW_NORMAL);
     // cv::setWindowProperty("view", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);   全屏显示
     cv::startWindowThread();
