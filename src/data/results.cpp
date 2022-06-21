@@ -35,7 +35,7 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
         cout<<"detect success :"<<iter->class_id<<" attention!!!!!!!"<<endl;
         switch ((int) (iter->class_id))
         {
-            case 20://ClassID::HEAD:
+            case 20://ClassID::HEAD:///???21
             {
                 if (iter->bbox[2] * iter->bbox[3] < areaHead)
                 {

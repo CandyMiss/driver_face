@@ -116,8 +116,17 @@ void drawRunning(cv::Mat& canvas)
         // cv::Rect rHead = YoloV5::get_rect(canvas, rectHead);
         // cv::rectangle(canvas, rFace, cv::Scalar(255, 0, 0), 2);
         // cv::rectangle(canvas, rHead, cv::Scalar(255, 0, 0), 2);
-
+    text.setFont(nullptr, &size1, nullptr, 0);
+    // std::string testStr(str);
     char *str = (char *)"";
+    // int font_face = cv::FONT_HERSHEY_COMPLEX;
+    // int baseline;
+    // cv::Size text_size = cv::getTextSize(testStr, font_face, FONT_SCALE, 2, &baseline);
+    // //将文本框居中绘制,统一绘制文字
+    // int posX = canvas.cols / 2 - text_size.width / 2; 
+    // int posY = canvas.rows / 2 + text_size.height / 2;
+
+
     if(CurFaceResult.HeadCaptured || CurFaceResult.FaceCaptured || CurFaceResult.FaceLeftCaptured || CurFaceResult.FaceRightCaptured || CurFaceResult.FaceUpCaptured || CurFaceResult.FaceDownCaptured ||
         CurFaceResult.IsEyeOcclusion || CurFaceResult.IsMouthOcclusion )
     {
@@ -125,29 +134,104 @@ void drawRunning(cv::Mat& canvas)
         {
             // yolo的结果使用yolo的坐标变换
             cv::Rect rFace = YoloV5::get_rect(canvas, CurFaceResult.RectFace);
-            //cv::Rect r(CurFaceResult.RectFace[0], CurFaceResult.RectFace[1], CurFaceResult.RectFace[2], CurFaceResult.RectFace[3]);
-            // cv::rectangle(canvas, r, cv::Scalar(0x27, 0xC1, 0x36), 2);  //在图像上绘制矩形
             cv::rectangle(canvas, rFace, cv::Scalar(255, 0, 0), 2);
         
-            // str = (char *)"Face";
-            // strcpy(str, driveridstr.c_str());
             str = const_cast<char*> (driveridstr.c_str());
+            drawChineseChars(canvas, str, TEXT_POSITION_X + TEXT_POSITION_Y_STEP * 5, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
         }
+        if (CurFaceResult.FaceLeftCaptured)
+        {
+            char *str = (char *) "面部左转！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+        }
+
+        if (CurFaceResult.FaceRightCaptured)
+        {
+            char *str = (char *) "面部右转！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+        }
+
+        if (CurFaceResult.FaceUpCaptured)
+        {
+            char *str = (char *) "面部上抬！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+        }
+
+        if (CurFaceResult.FaceDownCaptured)
+        {
+            char *str = (char *) "面部低下！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+        }
+
+        if (CurFaceResult.IsEyeOcclusion)
+        {
+            char *str = (char *) "眼部遮挡！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+        }
+
+        if (CurFaceResult.IsMouthOcclusion)
+        {
+            char *str = (char *) "嘴部遮挡！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+        }
+
+
+        // if (CurFaceResult.IsDozeNod)
+        // {
+        //     char *str = (char *) "瞌睡低头！";
+        //     drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 2, cv::Scalar(0, 0, 255));
+        // }
+
+
+        // 2.闭眼驾驶————逻辑需要修改
+        if (CurFaceResult.IsEyeClosed)
+        {
+            // yolo视野
+            cv::rectangle(canvas, YoloV5::get_rect(canvas, CurFaceResult.rectEyeLeft), cv::Scalar(0x27, 0xC1, 0x36), 2);
+            cv::rectangle(canvas, YoloV5::get_rect(canvas, CurFaceResult.rectEyeRight), cv::Scalar(0x27, 0xC1, 0x36), 2);
+
+            char *str = (char *) "闭眼驾驶！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 3, cv::Scalar(0, 0, 255));
+        }
+
+        // 3.打哈欠————逻辑需要修改
+        if (CurFaceResult.IsYawn)
+        {
+            // yolo视野
+            cv::rectangle(canvas, YoloV5::get_rect(canvas, CurFaceResult.rectMouth), cv::Scalar(0x27, 0xC1, 0x36), 2);
+
+            char *str = (char *) "打哈欠，疲劳驾驶！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 4, cv::Scalar(0, 0, 255));
+        }
+    }
+    else if(CurFaceResult.HasCigarette)//香烟
+    {
+         // yolo的结果使用yolo的坐标变换
+        cv::Rect rect = YoloV5::get_rect(canvas, CurFaceResult.RectCigarette);
+//        cv::rectangle(frame, rect, cv::Scalar(0x27, 0xC1, 0x36), 2);
+        cv::rectangle(canvas, rect, cv::Scalar(0, 255, 0), 2);
+
+        char *str = (char *) "有抽烟行为！";
+        drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 5, cv::Scalar(0, 255, 0));
+    }
+    else if(CurFaceResult.HasPhone)//手机
+    {
+         // yolo的结果使用yolo的坐标变换
+        cv::Rect rect = YoloV5::get_rect(canvas, CurFaceResult.RectPhone);
+        cv::rectangle(canvas, rect, cv::Scalar(0x27, 0xC1, 0x36), 2);
+
+        char *str = (char *) "行驶期间使用手机！";
+        drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 6, cv::Scalar(0, 0, 255));
     }
     else
     {
         str = (char * )"无";
+        drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255)); //左上角绘制文字信息
     }
 
-    std::string testStr(str);
-    int font_face = cv::FONT_HERSHEY_COMPLEX;
-    int baseline;
-    cv::Size text_size = cv::getTextSize(testStr, font_face, FONT_SCALE, 2, &baseline);
 
-    //将文本框居中绘制,统一绘制文字
-    int posX = canvas.cols / 2 - text_size.width / 2; 
-    int posY = canvas.rows / 2 + text_size.height / 2;
-    drawChineseChars(canvas, str, posX, posY, cv::Scalar(0, 0, 255)); //左上角绘制文字信息
+
+
 
 
 }

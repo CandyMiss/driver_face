@@ -36,6 +36,9 @@ public:
     float RectCigarette[Yolo::LOCATIONS]{0.0};
     float RectPhone[Yolo::LOCATIONS]{0.0};
 
+    float rectEyeLeft[Yolo::LOCATIONS]{0.0};// 左眼[center_x center_y w h]
+    float rectEyeRight[Yolo::LOCATIONS]{0.0};// 右眼[center_x center_y w h]
+    float rectMouth[Yolo::LOCATIONS]{0.0};
     // 需要全部映射到yolo图像的位置，用比例
     float PointsFace[PFLD::OUTPUT_SIZE]{0.0}; // 98个面部关键点坐标数据
 
@@ -47,6 +50,12 @@ public:
     float EyeOpen{-1.0};
     float MouthOpen{-1.0};
     int FaceNum{0};
+
+    // 需经过计算的结果：在连续时间内，计算并判断注意力分散、瞌睡、闭眼、哈欠
+    bool IsDistracted{false};
+    bool IsDozeNod{false};
+    bool IsEyeClosed{false};
+    bool IsYawn{false};
 
 public:
     void DealYoloResult(std::vector<Yolo::Detection> &driverResult);
