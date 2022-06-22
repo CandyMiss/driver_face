@@ -64,7 +64,7 @@ if __name__ == '__main__':
     factory.set_shared(True)
     server.get_mount_points().add_factory("/cam", factory)
  
-    print "\n *** Launched RTSP Streaming at rtsp://localhost:%d/ds-test ***\n\n" % rtsp_port_num   
+    print "\n *** Launched RTSP Streaming at rtsp://localhost:%d/cam ***\n\n" % rtsp_port_num   
  
     #cap = cv2.VideoCapture(0)
 
