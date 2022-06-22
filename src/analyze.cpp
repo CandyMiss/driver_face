@@ -141,6 +141,18 @@ void drawRunning(cv::Mat& canvas)
             str = const_cast<char*> (driveridstr.c_str());
             drawChineseChars(canvas, str, TEXT_POSITION_X + TEXT_POSITION_Y_STEP * 5, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
         }
+        else
+        {
+            if(CurFaceResult.HeadCaptured)
+            {
+                // yolo的结果使用yolo的坐标变换
+                cv::Rect rFace = YoloV5::get_rect(canvas, CurFaceResult.RectFace);
+                cv::rectangle(canvas, rFace, cv::Scalar(255, 0, 0), 2);
+            
+               char *str = (char *) "抓到头部！";
+                drawChineseChars(canvas, str, TEXT_POSITION_X + TEXT_POSITION_Y_STEP * 5, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+            }
+        }
         if (CurFaceResult.FaceLeftCaptured)
         {
             char *str = (char *) "面部左转！";
