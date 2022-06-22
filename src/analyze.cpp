@@ -29,6 +29,8 @@ ros::Time CurAnalyzeStamp;
 ros::Publisher StampInfoPub;
 ros::Publisher FaceInfoPub;
 ros::Publisher TargetInfoPub;
+image_transport::Publisher RenderPub;
+sensor_msgs::ImagePtr render_msg;  //发送渲染图的消息
 
 DriverResult CurFaceResult;
 
@@ -175,16 +177,22 @@ void drawRunning(cv::Mat& canvas)
             drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
         }
 
+        if (CurFaceResult.IsDistracted)
+        {
+            char *str = (char *) "注意力分散！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP, cv::Scalar(0, 0, 255));
+        }
 
-        // if (CurFaceResult.IsDozeNod)
-        // {
-        //     char *str = (char *) "瞌睡低头！";
-        //     drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 2, cv::Scalar(0, 0, 255));
-        // }
+        if (CurFaceResult.IsDozeNod)
+        {
+            char *str = (char *) "瞌睡低头！";
+            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y + TEXT_POSITION_Y_STEP * 2, cv::Scalar(0, 0, 255));
+        }
+
 
 
         // 2.闭眼驾驶————逻辑需要修改
-        if (CurFaceResult.IsEyeClosed)
+        if (CurFaceResult.IsEyeClosed)//true 
         {
             // yolo视野
             cv::rectangle(canvas, YoloV5::get_rect(canvas, CurFaceResult.rectEyeLeft), cv::Scalar(0x27, 0xC1, 0x36), 2);
@@ -350,11 +358,14 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
         // cv::imshow("view_frame", canvas);
         drawRunning(canvas);    //在取出的一帧图像上绘制矩形
         cv::imshow("render_view", canvas);
+        render_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", canvas).toImageMsg();
+
 
         //在消息回调函数里面发布另一个话题的消息
         StampInfoPub.publish(result_msg);
         FaceInfoPub.publish(face_msg);
         TargetInfoPub.publish(target_msg);
+        RenderPub.publish(render_msg);
 
     }
     catch (cv_bridge::Exception& e)
@@ -416,8 +427,12 @@ int main(int argc, char **argv)
     FaceInfoPub = node_analyze.advertise<driver_face::FaceRecMsg>("/camera_csi0/face_result", 1);
     TargetInfoPub = node_analyze.advertise<driver_face::TargetRes>("/camera_csi0/target_result", 1);
 
+
     image_transport::ImageTransport it(node_analyze);
     image_transport::Subscriber sub = it.subscribe("/camera_csi0/frames", 1, imageCallback);
+    RenderPub = it.advertise("/render/frames", 1);
+    
+
     ros::Subscriber driver_id_sub = node_analyze.subscribe("/camera_csi0/driver_id", 1, IDInfoCallback);    
 
     ros::spin();
