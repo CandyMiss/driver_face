@@ -23,10 +23,10 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
     // 仅保留面积最大的那个对象——对于单个驾驶员而言，以下所有的对象都是唯一的
     float areaHead{0.0};
     float areaFace{0.0};
-   //float areaEyeHead{0.0};
-    //float areaMouthHead{0.0};
-    //float areaCigarette{0.0};
-    //float areaPhone{0.0};
+    float areaEyeHead{0.0};
+    float areaMouthHead{0.0};
+    float areaCigarette{0.0};
+    float areaPhone{0.0};
     FaceNum = 0;
 
     for (vector<Detection>::iterator iter = driverResult.begin(); iter != driverResult.end(); ++iter)
@@ -66,12 +66,146 @@ void DriverResult::DealYoloResult(vector<Detection> &driverResult)  //会统计�
                 break;
             }
 
+//             case 1://ClassID::FACE_LEFT
+//             {
+//                 // 标明捕捉到脸，后续可执行脸部操作
+//                 if (iter->bbox[2] * iter->bbox[3] < areaFace)
+//                 {
+//                     continue;
+//                 }
+//                 FaceLeftCaptured = true;
+//                 cout << "抓到脸朝左了！" << endl;
+//                 memcpy(RectFace, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 2://ClassID::FACE_RIGHT
+//             {
+//                 // 标明捕捉到脸，后续可执行脸部操作
+//                 if (iter->bbox[2] * iter->bbox[3] < areaFace)
+//                 {
+//                     continue;
+//                 }
+//                 FaceRightCaptured = true;
+//                 cout << "抓到脸朝右了！" << endl;
+//                 memcpy(RectFace, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 4://ClassID::FACE_UP
+//             {
+//                 // 标明捕捉到脸，后续可执行脸部操作
+//                 if (iter->bbox[2] * iter->bbox[3] < areaFace)
+//                 {
+//                     continue;
+//                 }
+//                 FaceUpCaptured = true;
+//                 cout << "抓到脸朝上了！" << endl;
+//                 memcpy(RectFace, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 3://ClassID::FACE_DOWN
+//             {
+//                 // 标明捕捉到脸，后续可执行脸部操作
+//                 if (iter->bbox[2] * iter->bbox[3] < areaFace)
+//                 {
+//                     continue;
+//                 }
+//                 FaceDownCaptured = true;
+//                 cout << "抓到脸朝下了！" << endl;
+//                 memcpy(RectFace, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+// #pragma endregion
+
+//             case 5://ClassID::EYES_OCCLUSION
+//             {
+//                 cout << "抓到遮眼了！？？？？" << endl;
+//                 if (iter->bbox[2] * iter->bbox[3] < areaEyeHead)
+//                 {
+//                     continue;
+//                 }
+//                 IsEyeOcclusion = true;
+//                 cout << "抓到遮眼了！" << endl;
+//                 memcpy(RectFace, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 6://ClassID::MOUTH_OCCLUSION
+//             {
+//                 cout << "抓到遮嘴了！？？？？" << endl;
+//                 if (iter->bbox[2] * iter->bbox[3] < areaMouthHead)
+//                 {
+//                     continue;
+//                 }
+//                 IsMouthOcclusion = true;
+//                 cout << "抓到遮嘴了！" << endl;
+//                 memcpy(RectFace, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 8://ClassID::CIGARETTE
+//             {
+//                 if (iter->bbox[2] * iter->bbox[3] < areaCigarette)
+//                 {
+//                     continue;
+//                 }
+//                 HasCigarette = true;
+//                 cout << "抓到香烟了！" << endl;
+//                 memcpy(RectCigarette, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 7://ClassID::PHONE
+//             {
+//                 if (iter->bbox[2] * iter->bbox[3] < areaPhone)
+//                 {
+//                     continue;
+//                 }
+//                 HasPhone = true;
+//                 cout << "抓到手机了！" << endl;
+//                 memcpy(RectPhone, iter->bbox, Yolo::LOCATIONS * sizeof(float));
+//                 break;                
+//             }
+
+//             case 9:// ClassID::HAND_FIST
+//             {
+//                 cout << "抓到拳头了！" << endl;
+//                 break;                
+//             }
+
+//             case 10:// ClassID::HAND_THUMB
+//             {
+//                 cout << "抓到大拇指了！" << endl;
+//                 break;                
+//             }
+
+//             case 11://ClassID::HAND_INDEX_AND_MIDDLE_FINGER
+//             {
+//                 cout << "抓到指挥手势了！" << endl;
+//                 break;                
+//             }
+
+//             case 12://ClassID::HAND_BIG_AND_SMALL_THUMB
+//             {
+//                 cout << "抓到666了！" << endl;
+//                 break;                
+//             }
 
             default:
             {
                 //other status
                 FaceCaptured = false;
                 HeadCaptured = false;
+                FaceLeftCaptured = false;
+                FaceRightCaptured = false;
+                FaceDownCaptured = false;
+                IsEyeOcclusion = false;
+                IsMouthOcclusion = false;
+                HasCigarette = false;
+                HasPhone = false;
                 break;
             }
 

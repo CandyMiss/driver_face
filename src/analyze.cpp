@@ -152,30 +152,31 @@ void drawRunning(cv::Mat& canvas)
                char *str = (char *) "抓到头部！";
                 drawChineseChars(canvas, str, TEXT_POSITION_X + TEXT_POSITION_Y_STEP * 5, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
             }
-        }
-        if (CurFaceResult.FaceLeftCaptured)
-        {
-            char *str = (char *) "面部左转！";
-            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+
+            if (CurFaceResult.FaceLeftCaptured)
+            {
+                char *str = (char *) "面部左转！";
+                drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+            }
+            else if (CurFaceResult.FaceRightCaptured)
+            {
+                char *str = (char *) "面部右转！";
+                drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+            }
+            else if (CurFaceResult.FaceUpCaptured)
+            {
+                char *str = (char *) "面部上抬！";
+                drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+            }
+            else if (CurFaceResult.FaceDownCaptured)
+            {
+                char *str = (char *) "面部低下！";
+                drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
+            }
         }
 
-        if (CurFaceResult.FaceRightCaptured)
-        {
-            char *str = (char *) "面部右转！";
-            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
-        }
 
-        if (CurFaceResult.FaceUpCaptured)
-        {
-            char *str = (char *) "面部上抬！";
-            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
-        }
 
-        if (CurFaceResult.FaceDownCaptured)
-        {
-            char *str = (char *) "面部低下！";
-            drawChineseChars(canvas, str, TEXT_POSITION_X, TEXT_POSITION_Y, cv::Scalar(0, 0, 255));
-        }
 
         if (CurFaceResult.IsEyeOcclusion)
         {

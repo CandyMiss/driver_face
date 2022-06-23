@@ -124,9 +124,9 @@ void imageCallback(const driver_face::FaceRecMsg::ConstPtr& msg)
                 string idstr = std::to_string(faceId);
                 if(faceId == 0)
                 {
-                    cv::imwrite(capture_path + idstr+ time+"-1.jpg", faceMat);   //保存图片
-                    cv::imwrite(capture_path + idstr+ time+"-2.jpg", faceMat);   //保存图片
-                    cv::imwrite(capture_path + idstr+ time+"-3.jpg", faceMat);   //保存图片  
+                    cv::imwrite(capture_path + idstr+ "_" + time+"-1.jpg", faceMat);   //保存图片
+                    cv::imwrite(capture_path + idstr+ "_" + time+"-2.jpg", faceMat);   //保存图片
+                    cv::imwrite(capture_path + idstr+ "_" + time+"-3.jpg", faceMat);   //保存图片  
                 }
                 else
                 {
